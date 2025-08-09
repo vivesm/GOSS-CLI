@@ -1,16 +1,17 @@
-# Gemini CLI
+# GOSS CLI
 
 A command-line interface for chat with local LLMs using LM Studio with MCP (Model Context Protocol) tools for file operations and web search.
 
 ## Features
 
-🤖 **Agentic AI**: Uses local LM Studio models with function calling capabilities
+🤖 **Local AI Chat**: Uses LM Studio models with function calling capabilities
 🔧 **MCP Tools**: Built-in filesystem and web search tools
-📁 **File Operations**: Read, write, list, and search files
-🌐 **Web Search**: Search the web using DuckDuckGo API
-💬 **Chat Interface**: Interactive terminal-based chat
+📁 **File Operations**: Read, write, list, search, and create files/directories
+🌐 **Web Search**: Search the web using Brave Search API (with fallback to DuckDuckGo)
+💬 **Chat Interface**: Clean terminal-based chat like original Gemini CLI
 📚 **History Management**: Save/load conversation history
 🔄 **Model Switching**: Switch between different local models
+✨ **Tested & Verified**: All MCP tools tested and working
 
 ## Prerequisites
 
@@ -25,7 +26,7 @@ A command-line interface for chat with local LLMs using LM Studio with MCP (Mode
 git clone <repository-url>
 cd agentic-cli
 go mod tidy
-go build -o bin/gemini cmd/gemini/main.go
+go build -o bin/goss cmd/goss/main.go
 ```
 
 ## Usage
@@ -41,30 +42,32 @@ go build -o bin/gemini cmd/gemini/main.go
 
 ```bash
 # Basic usage
-./bin/gemini
+./bin/goss
 
 # With custom LM Studio endpoint
-./bin/gemini --base-url http://localhost:1234/v1
+./bin/goss --base-url http://localhost:1234/v1
 
 # With specific model
-./bin/gemini --model "mistral-7b-instruct"
+./bin/goss --model "mistral-7b-instruct"
 
 # With API key (if required)
 export LMSTUDIO_API_KEY=your-key-here
-./bin/gemini
+./bin/goss
 ```
 
 ## MCP Tools Available
 
-### Filesystem Tools
+### Filesystem Tools (✅ Tested & Working)
 - `read_file`: Read file contents
-- `write_file`: Write content to files
-- `list_directory`: List directory contents
-- `search_files`: Search for files by pattern
+- `write_file`: Write content to files  
+- `list_directory`: List directory contents with file sizes
+- `search_files`: Search for files by pattern (supports wildcards like *.go)
 - `create_directory`: Create directories
 
-### Web Search Tools
-- `web_search`: Search the web using DuckDuckGo
+### Web Search Tools (✅ Tested & Working)
+- `web_search`: Search the web using Brave Search API (with DuckDuckGo fallback)
+- Secure API key loading from `.env.brave.api` file
+- Real-time search results with descriptions and URLs
 
 ## Example Interactions
 
@@ -185,12 +188,17 @@ func myToolHandler(ctx context.Context, args map[string]interface{}) (string, er
 # Unit tests
 go test ./...
 
+# Test MCP tools directly
+go run test_filesystem_detailed.go  # Test all filesystem operations
+go run test_mcp.go                  # Test MCP integration
+
 # Manual testing
-./bin/gemini
-> !m  # Test model operations
+./bin/goss
+> !m  # Test model operations  
 > !h  # Test history operations
 > List files in current directory  # Test filesystem tools
 > Search for "golang tutorials"    # Test web search
+> Create a file called hello.txt with "Hello World"  # Test file creation
 ```
 
 ## Troubleshooting
