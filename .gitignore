@@ -1,3 +1,5 @@
 node_modules
 .env
+.env.github
 .DS_Store
+CLAUDE.md

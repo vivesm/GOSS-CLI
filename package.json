@@ -22,16 +22,16 @@
     "chat", 
     "machine-learning"
   ],
-  "author": "GOSS-CLI Contributors",
+  "author": "M. Vives <vivesm@github>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-username/GOSS-CLI.git"
+    "url": "git+https://github.com/vivesm/GOSS-CLI.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/GOSS-CLI/issues"
+    "url": "https://github.com/vivesm/GOSS-CLI/issues"
   },
-  "homepage": "https://github.com/your-username/GOSS-CLI#readme",
+  "homepage": "https://github.com/vivesm/GOSS-CLI#readme",
   "engines": {
     "node": ">=16.0.0"
   },
