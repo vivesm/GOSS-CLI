@@ -55,9 +55,9 @@ type BraveSearchResponse struct {
 		} `json:"results"`
 	} `json:"web"`
 	Query struct {
-		Original string `json:"original"`
-		Show     string `json:"show_strict_warning"`
-		Altered  string `json:"altered,omitempty"`
+		Original string      `json:"original"`
+		Show     interface{} `json:"show_strict_warning"`
+		Altered  string      `json:"altered,omitempty"`
 	} `json:"query"`
 }
 
