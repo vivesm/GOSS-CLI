@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  gemini:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: gemini:latest
+    container_name: gemini
+    environment:
+      - LMSTUDIO_API_KEY=${LMSTUDIO_API_KEY:-}
+      - LMSTUDIO_BASE_URL=${LMSTUDIO_BASE_URL:-http://host.docker.internal:1234/v1}
+      - DEFAULT_MODEL=${DEFAULT_MODEL:-openai/gpt-oss-20b}
+    volumes:
+      - ./gemini_cli_config.json:/home/appuser/gemini_cli_config.json:ro
+      - ./logs:/home/appuser/logs
+    networks:
+      - gemini-network
+    # Use host networking on Linux to access LM Studio on host
+    # network_mode: host  # Uncomment on Linux
+    extra_hosts:
+      - "host.docker.internal:host-gateway"  # For Docker Desktop
+    stdin_open: true
+    tty: true
+    command: ["--base-url", "http://host.docker.internal:1234/v1"]
+    restart: unless-stopped
+
+networks:
+  gemini-network:
+    driver: bridge
