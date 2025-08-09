@@ -21,8 +21,26 @@ A command-line interface for chat with local LLMs using LM Studio with MCP (Mode
 
 ## Installation
 
+### Option 1: Quick Install (Recommended)
 ```bash
-# Clone and build
+# Clone and install system-wide
+git clone <repository-url>
+cd agentic-cli
+make install
+```
+
+This installs two commands:
+- `goss-mcp` - The main command
+- `gossai` - Alternative shorter name
+
+**Uninstall**:
+```bash
+make uninstall
+```
+
+### Option 2: Manual Build
+```bash
+# Clone and build locally
 git clone <repository-url>
 cd agentic-cli
 go mod tidy
@@ -41,18 +59,23 @@ go build -o bin/goss cmd/goss/main.go
 ### Run the CLI
 
 ```bash
-# Basic usage
+# Basic usage (if installed system-wide)
+goss-mcp
+# or
+gossai
+
+# Local build usage
 ./bin/goss
 
 # With custom LM Studio endpoint
-./bin/goss --base-url http://localhost:1234/v1
+goss-mcp --base-url http://localhost:1234/v1
 
 # With specific model
-./bin/goss --model "mistral-7b-instruct"
+goss-mcp --model "mistral-7b-instruct"
 
 # With API key (if required)
 export LMSTUDIO_API_KEY=your-key-here
-./bin/goss
+goss-mcp
 ```
 
 ## MCP Tools Available
@@ -193,7 +216,7 @@ go run test_filesystem_detailed.go  # Test all filesystem operations
 go run test_mcp.go                  # Test MCP integration
 
 # Manual testing
-./bin/goss
+goss-mcp  # or ./bin/goss for local build
 > !m  # Test model operations  
 > !h  # Test history operations
 > List files in current directory  # Test filesystem tools
