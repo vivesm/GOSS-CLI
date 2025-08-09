@@ -3,7 +3,7 @@ import { validateConfig } from '../utils/config-validator.js';
 
 const DEFAULTS = {
   apiBase: 'http://localhost:1234/v1',
-  model: 'gpt-oss-20b',
+  model: 'openai/gpt-oss-20b',
   temperature: 0.7,
   maxTokens: 2048,
   stream: true,
