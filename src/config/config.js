@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { validateConfig } from '../utils/config-validator.js';
 
 const DEFAULTS = {
   apiBase: 'http://localhost:1234/v1',
@@ -10,7 +11,7 @@ const DEFAULTS = {
 };
 
 export function loadConfig(cli) {
-  const cfg = {
+  let cfg = {
     apiBase: cli.apiBase || process.env.API_BASE || DEFAULTS.apiBase,
     model: cli.model || process.env.MODEL || DEFAULTS.model,
     temperature: num(cli.temperature || process.env.TEMPERATURE, DEFAULTS.temperature),
@@ -22,6 +23,10 @@ export function loadConfig(cli) {
     provider: cli.provider || process.env.PROVIDER || null,
     apiKey: process.env.OPENAI_API_KEY || null,
   };
+  
+  // Validate and fix configuration
+  cfg = validateConfig(cfg);
+  
   return cfg;
 }
 

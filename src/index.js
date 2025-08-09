@@ -28,6 +28,16 @@ program
   });
 
 program
+  .command('list-models')
+  .alias('models')
+  .description('List available models from provider')
+  .action(async () => {
+    const cfg = loadConfig(program.opts());
+    const { listModelsCommand } = await import('./commands/list-models.js');
+    await listModelsCommand(cfg);
+  });
+
+program
   .argument('[prompt...]', 'Single-prompt mode')
   .action(async (promptParts) => {
     const cfg = loadConfig(program.opts());

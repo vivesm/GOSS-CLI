@@ -71,7 +71,10 @@ export async function singlePrompt(cfg, prompt) {
 async function streamToStdout(stream) {
   return new Promise((resolve, reject) => {
     let fullText = '';
+    let hasReceivedData = false;
+    
     stream.on('data', (chunk) => {
+      hasReceivedData = true;
       const lines = chunk.toString().split('\n').filter(Boolean);
       for (const line of lines) {
         if (!line.startsWith('data:')) continue;
@@ -87,10 +90,40 @@ async function streamToStdout(stream) {
             process.stdout.write(delta);
             fullText += delta;
           }
-        } catch { /* ignore parse errors in mixed chunks */ }
+        } catch (parseError) {
+          // Log malformed JSON for debugging but continue
+          if (process.env.DEBUG) {
+            console.error(`\n[DEBUG] Malformed JSON chunk: ${payload}`);
+          }
+        }
       }
     });
-    stream.on('end', () => resolve(fullText));
-    stream.on('error', reject);
+    
+    stream.on('end', () => {
+      if (!hasReceivedData && !fullText) {
+        reject(new Error('Stream ended without receiving any data'));
+      } else {
+        resolve(fullText);
+      }
+    });
+    
+    stream.on('error', (err) => {
+      if (fullText) {
+        // If we got partial content, show it and warn
+        console.error(chalk.yellow('\nConnection interrupted. Partial response received.'));
+        resolve(fullText);
+      } else {
+        reject(err);
+      }
+    });
+    
+    // Timeout for stuck streams
+    const timeout = setTimeout(() => {
+      reject(new Error('Stream timeout - no data received in 30 seconds'));
+    }, 30000);
+    
+    stream.on('data', () => clearTimeout(timeout));
+    stream.on('end', () => clearTimeout(timeout));
+    stream.on('error', () => clearTimeout(timeout));
   });
 }

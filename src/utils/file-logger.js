@@ -1,19 +1,32 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import os from 'os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export async function saveConversation(messages, prompt = null) {
   const logsDir = path.join(process.cwd(), 'logs');
   
-  // Ensure logs directory exists
-  await fs.mkdir(logsDir, { recursive: true });
+  try {
+    // Ensure logs directory exists with proper permissions
+    await fs.mkdir(logsDir, { recursive: true });
+    
+    // Test write permissions
+    const testFile = path.join(logsDir, '.write-test');
+    await fs.writeFile(testFile, 'test');
+    await fs.unlink(testFile);
+  } catch (err) {
+    if (err.code === 'EACCES' || err.code === 'EPERM') {
+      throw new Error(`Cannot write to logs directory: ${logsDir}. Check permissions or use a different directory.`);
+    }
+    throw err;
+  }
   
-  // Create timestamp filename
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+  // Create timestamp filename (Windows-safe)
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, -5);
   const filename = `conversation_${timestamp}.txt`;
-  const filepath = path.join(logsDir, filename);
+  const filepath = path.resolve(logsDir, filename);
   
   // Format conversation
   let content = `GOSS-CLI Conversation Log\n`;
@@ -37,7 +50,9 @@ export async function saveConversation(messages, prompt = null) {
 
 export async function loadContextFile(filepath) {
   try {
-    const content = await fs.readFile(filepath, 'utf-8');
+    // Resolve relative paths and normalize for cross-platform
+    const resolvedPath = path.resolve(process.cwd(), filepath);
+    const content = await fs.readFile(resolvedPath, 'utf-8');
     const messages = [];
     
     // Simple parser for conversation format

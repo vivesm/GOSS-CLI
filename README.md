@@ -107,12 +107,20 @@ cp .env.example .env  # Optional: set defaults
 
 #### Context Files
 ```bash
-# Pre-load conversation history
+# Pre-load conversation history (APPENDS to conversation)
 ./bin/goss --context-file previous-chat.txt "Follow-up question"
 
-# Continue a saved conversation
-./bin/goss --context-file logs/conversation_2024-01-15T10-30-45.txt chat
+# Continue a saved conversation in interactive mode
+./bin/goss --context-file logs/conversation_2024-01-15_10-30-45.txt chat
+
+# Context files are loaded BEFORE your prompt/chat, maintaining conversation flow
 ```
+
+**Context File Behavior:**
+- Context files are **appended** to conversation history (not replaced)
+- Supports saved conversation format or simple "User:/Assistant:" format
+- Path resolution: relative to current directory, works cross-platform
+- Invalid/missing files show warning but don't stop execution
 
 #### Auto Model Detection
 ```bash
@@ -140,12 +148,26 @@ Or use command-line flags (overrides env vars):
 - `--provider <name>`: Provider (lmstudio, ollama, openai, localai)
 - `--api-base <url>`: API endpoint URL
 - `--model <name>`: Model name
-- `--temperature <num>`: Generation temperature (0-1)
-- `--max-tokens <n>`: Maximum tokens to generate
+- `--temperature <num>`: Generation temperature (0-2)
+- `--max-tokens <n>`: Maximum tokens to generate (1-32000)
 - `--debug`: Enable debug logging
 - `--no-stream`: Disable streaming responses
-- `--save`: Save conversation to logs/
-- `--context-file <path>`: Pre-load conversation
+- `--save`: Save conversation to timestamped files in logs/
+- `--context-file <path>`: Pre-load conversation (appends to history)
+
+### Commands
+
+```bash
+# Interactive chat mode
+./bin/goss chat
+
+# List available models from provider
+./bin/goss list-models
+./bin/goss models  # short alias
+
+# Single prompt mode (default when no command specified)
+./bin/goss "Your question here"
+```
 
 ## Development
 
