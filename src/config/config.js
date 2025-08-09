@@ -17,6 +17,10 @@ export function loadConfig(cli) {
     maxTokens: int(cli.maxTokens || process.env.MAX_TOKENS, DEFAULTS.maxTokens),
     stream: cli.stream ?? DEFAULTS.stream,
     debug: !!cli.debug,
+    save: !!cli.save,
+    contextFile: cli.contextFile || null,
+    provider: cli.provider || process.env.PROVIDER || null,
+    apiKey: process.env.OPENAI_API_KEY || null,
   };
   return cfg;
 }

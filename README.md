@@ -1,29 +1,69 @@
 # GOSS-CLI
 
-Gemini-like CLI using local GPT-OSS via LM Studio (OpenAI-compatible API).
+Universal CLI for local and remote AI models. Works with LM Studio, Ollama, OpenAI, LocalAI, and any OpenAI-compatible API.
 
 ## Quick Start
 
 ```bash
-# Start LM Studio -> enable Local Server (default: http://localhost:1234/v1)
-cp .env.example .env
+# Install
 npm install
-./bin/goss --debug "Say hello"
+
+# LM Studio (default)
+./bin/goss "Hello, world!"
+
+# Ollama
+./bin/goss --provider ollama --model llama2 "Hello!"
+
+# OpenAI
+export OPENAI_API_KEY=sk-...
+./bin/goss --provider openai --model gpt-4 "Hello!"
+
+# Interactive chat
 ./bin/goss chat
+```
+
+## Supported Providers
+
+### LM Studio (Default)
+```bash
+# Start LM Studio with Local Server enabled
+./bin/goss "Hello!"
+./bin/goss --model codellama-7b "Write a function"
+```
+
+### Ollama
+```bash
+# Start Ollama: ollama serve
+./bin/goss --provider ollama --model llama2 "Hello!"
+./bin/goss --api-base http://localhost:11434 "Test"
+```
+
+### OpenAI
+```bash
+export OPENAI_API_KEY=sk-your-key
+./bin/goss --provider openai "Hello!"
+./bin/goss --provider openai --model gpt-4 "Complex task"
+```
+
+### LocalAI
+```bash
+# Start LocalAI server
+./bin/goss --api-base http://localhost:8080/v1 "Hello!"
+```
+
+### Custom OpenAI-Compatible
+```bash
+./bin/goss --api-base https://your-api.com/v1 --model your-model "Hello!"
 ```
 
 ## Installation
 
-1. **Install LM Studio**: Download from [lmstudio.ai](https://lmstudio.ai)
-2. **Load a model**: Download and load a GPT-OSS model (e.g., `gpt-oss-20b`)
-3. **Enable Local Server**: In LM Studio settings, enable the local server
-4. **Clone and install**:
-   ```bash
-   git clone <this-repo>
-   cd GOSS-CLI
-   npm install
-   cp .env.example .env
-   ```
+```bash
+git clone <this-repo>
+cd GOSS-CLI
+npm install
+cp .env.example .env  # Optional: set defaults
+```
 
 ## Usage
 
@@ -54,23 +94,58 @@ npm install
 ./bin/goss --debug chat
 ```
 
+### New Features
+
+#### Save Conversations
+```bash
+# Save conversation to timestamped file in logs/
+./bin/goss --save "Important question"
+./bin/goss --save chat
+
+# Output: logs/conversation_2024-01-15T10-30-45.txt
+```
+
+#### Context Files
+```bash
+# Pre-load conversation history
+./bin/goss --context-file previous-chat.txt "Follow-up question"
+
+# Continue a saved conversation
+./bin/goss --context-file logs/conversation_2024-01-15T10-30-45.txt chat
+```
+
+#### Auto Model Detection
+```bash
+# Lists available models if wrong model specified
+./bin/goss --model wrong-model "Test"
+# Warning: Model 'wrong-model' not found in available models.
+# Available models:
+#   - gpt-oss-20b
+#   - codellama-7b
+```
+
 ### Configuration
 
 Configure via environment variables (`.env` file):
 ```bash
+PROVIDER=lmstudio              # Provider type
 API_BASE=http://localhost:1234/v1
 MODEL=gpt-oss-20b
 TEMPERATURE=0.7
 MAX_TOKENS=2048
+OPENAI_API_KEY=sk-...          # For OpenAI provider
 ```
 
 Or use command-line flags (overrides env vars):
+- `--provider <name>`: Provider (lmstudio, ollama, openai, localai)
 - `--api-base <url>`: API endpoint URL
 - `--model <name>`: Model name
 - `--temperature <num>`: Generation temperature (0-1)
 - `--max-tokens <n>`: Maximum tokens to generate
 - `--debug`: Enable debug logging
 - `--no-stream`: Disable streaming responses
+- `--save`: Save conversation to logs/
+- `--context-file <path>`: Pre-load conversation
 
 ## Development
 
@@ -100,14 +175,17 @@ node bin/goss --debug "Hello"
 
 ## Features
 
-- ✅ OpenAI-compatible API format
-- ✅ Streaming responses for better UX
-- ✅ Interactive chat with conversation history
-- ✅ Environment variable configuration
-- ✅ Debug mode for troubleshooting
-- ✅ Colored terminal output
-- ✅ Error handling with helpful messages
-- ✅ No API keys required (local only)
+- ✅ **Multiple Providers**: LM Studio, Ollama, OpenAI, LocalAI, and any OpenAI-compatible API
+- ✅ **Smart Detection**: Auto-detects provider based on API endpoint
+- ✅ **Streaming Responses**: Real-time output for better UX
+- ✅ **Interactive Chat**: Full conversation history with context
+- ✅ **Save Conversations**: Export chats to timestamped files
+- ✅ **Context Loading**: Resume previous conversations
+- ✅ **Model Validation**: Lists available models when incorrect
+- ✅ **Flexible Config**: Environment variables, CLI flags, or both
+- ✅ **Debug Mode**: See full API requests/responses
+- ✅ **Error Handling**: Helpful messages for common issues
+- ✅ **No Lock-in**: Works with local or cloud models
 
 ## License
 

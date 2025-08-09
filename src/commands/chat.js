@@ -3,16 +3,35 @@ import chalk from 'chalk';
 import { createClient } from '../api/client.js';
 import { openAIToText } from '../api/converter.js';
 import { explainConnectionError } from '../utils/error-handler.js';
+import { saveConversation, loadContextFile } from '../utils/file-logger.js';
 
 export async function chatCommand(cfg) {
   const client = createClient(cfg);
-  const history = [];
+  let history = [];
+  
+  // Load context file if provided
+  if (cfg.contextFile) {
+    try {
+      const context = await loadContextFile(cfg.contextFile);
+      history.push(...context);
+      console.log(chalk.dim(`Loaded ${context.length} messages from context file\n`));
+    } catch (err) {
+      console.error(chalk.yellow(`Warning: ${err.message}\n`));
+    }
+  }
 
   while (true) {
     const { prompt } = await inquirer.prompt([
       { type: 'input', name: 'prompt', message: chalk.cyan('You:'), validate: v => !!v || 'Enter a prompt (or /q to quit)' }
     ]);
-    if (prompt.trim() === '/q') break;
+    if (prompt.trim() === '/q') {
+      // Save on quit if requested
+      if (cfg.save && history.length > 0) {
+        const filepath = await saveConversation(history);
+        console.log(chalk.dim(`\nConversation saved to: ${filepath}`));
+      }
+      break;
+    }
 
     history.push({ role: 'user', content: prompt });
 
