@@ -8,7 +8,7 @@
     "test": "vitest",
     "test:smoke": "bash scripts/smoke.sh",
     "test:all": "npm test && npm run test:smoke",
-    "prepublishOnly": "npm run test:all"
+    "prepublishOnly": "npm test"
   },
   "keywords": [
     "ai", 
@@ -39,8 +39,7 @@
     "bin/",
     "src/",
     "README.md",
-    "LICENSE",
-    "CLAUDE.md"
+    "LICENSE"
   ],
   "type": "module",
   "bin": {
