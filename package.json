@@ -1,15 +1,45 @@
 {
   "name": "goss-cli",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Universal CLI for local and remote AI models. Works with LM Studio, Ollama, OpenAI, LocalAI, and any OpenAI-compatible API.",
+  "main": "src/index.js",
   "scripts": {
     "dev": "node bin/goss --debug",
-    "test": "vitest"
+    "test": "vitest",
+    "prepublishOnly": "npm test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "keywords": [
+    "ai", 
+    "cli", 
+    "lm-studio", 
+    "ollama", 
+    "openai", 
+    "gpt", 
+    "llm", 
+    "local-models", 
+    "chat", 
+    "machine-learning"
+  ],
+  "author": "GOSS-CLI Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/GOSS-CLI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/GOSS-CLI/issues"
+  },
+  "homepage": "https://github.com/your-username/GOSS-CLI#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "CLAUDE.md"
+  ],
   "type": "module",
   "bin": {
     "goss": "bin/goss"

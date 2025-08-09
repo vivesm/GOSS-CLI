@@ -58,11 +58,38 @@ export OPENAI_API_KEY=sk-your-key
 
 ## Installation
 
+### Option 1: npm (Recommended)
 ```bash
-git clone <this-repo>
+# Install globally
+npm install -g goss-cli
+
+# Use immediately
+goss "Hello, world!"
+```
+
+### Option 2: Git Clone
+```bash
+git clone https://github.com/your-username/GOSS-CLI.git
 cd GOSS-CLI
 npm install
-cp .env.example .env  # Optional: set defaults
+npm link  # Makes 'goss' available globally
+
+# Optional: set defaults
+cp .env.example .env
+```
+
+### Option 3: Download Release
+```bash
+# Download latest release
+curl -L https://github.com/your-username/GOSS-CLI/releases/latest/download/goss-cli.tar.gz | tar -xz
+cd GOSS-CLI
+npm install --production
+./bin/goss "Test installation"
+```
+
+### Option 4: Homebrew (Coming Soon)
+```bash
+brew install goss-cli
 ```
 
 ## Usage
