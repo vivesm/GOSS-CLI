@@ -211,18 +211,18 @@ func (tc *TemperatureCommand) showTemperatureHelp() Response {
 
 **Usage:**
 • !t show        - Show current temperature
-• !t set <value> - Set temperature (0.0-2.0)
+• !t set <value> - Set temperature (0.0-1.0)
 • !t reset       - Reset to default (0.3)
 
 **Temperature Guide:**
 • 0.0-0.3 - Very focused, deterministic responses
 • 0.4-0.7 - Balanced creativity and focus  
-• 0.8-2.0 - More creative and random responses
+• 0.8-1.0 - More creative and varied responses
 
 **Examples:**
 • !t set 0.1 - Maximum focus for analysis
 • !t set 0.7 - Balanced for general use
-• !t set 1.0 - More creative for brainstorming`
+• !t set 1.0 - Maximum creativity for brainstorming`
 
 	return dataResponse(help)
 }
