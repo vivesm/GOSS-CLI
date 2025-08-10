@@ -21,7 +21,7 @@ type ChatSession struct {
 	temperature float64
 	maxTokens   int
 	history     []openai.Message
-	
+
 	mu sync.Mutex
 }
 
@@ -39,20 +39,20 @@ func NewChatSession(ctx context.Context, config SessionConfig) (*ChatSession, er
 	if config.Model == "" {
 		config.Model = DefaultModel
 	}
-	
+
 	client := openai.NewClient(config.BaseURL, config.APIKey)
-	
+
 	// Add MCP tools
 	filesystemTools := mcp.CreateFilesystemTools()
 	for _, tool := range filesystemTools {
 		client.AddTool(tool)
 	}
-	
+
 	websearchTools := mcp.CreateWebSearchTools()
 	for _, tool := range websearchTools {
 		client.AddTool(tool)
 	}
-	
+
 	// Set defaults if not provided
 	temperature := config.Temperature
 	if temperature == 0 {
@@ -71,10 +71,10 @@ func NewChatSession(ctx context.Context, config SessionConfig) (*ChatSession, er
 		maxTokens:   maxTokens,
 		history:     make([]openai.Message, 0),
 	}
-	
+
 	// Add default system message for better tool usage
 	session.SetSystemMessage("You are a helpful AI assistant with access to filesystem and web search tools. When users ask for current information (like weather, news, prices), ALWAYS use web search first. For web searches: be persistent and try multiple specific queries if the first doesn't give direct answers. For weather queries, try searches like 'current temperature [location] today' or '[location] weather now degrees'. Extract specific information from search result descriptions. If the first search doesn't give you a direct answer, try different keywords and be more specific.")
-	
+
 	return session, nil
 }
 
@@ -82,7 +82,7 @@ func NewChatSession(ctx context.Context, config SessionConfig) (*ChatSession, er
 func (s *ChatSession) SetTemperature(temperature float64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Clamp temperature to valid range
 	if temperature < 0.0 {
 		temperature = 0.0
@@ -90,7 +90,7 @@ func (s *ChatSession) SetTemperature(temperature float64) {
 	if temperature > 2.0 {
 		temperature = 2.0
 	}
-	
+
 	s.temperature = temperature
 }
 
@@ -105,14 +105,14 @@ func (s *ChatSession) GetTemperature() float64 {
 func (s *ChatSession) SetMaxTokens(maxTokens int) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	if maxTokens < 1 {
 		maxTokens = 1
 	}
 	if maxTokens > 8192 {
 		maxTokens = 8192
 	}
-	
+
 	s.maxTokens = maxTokens
 }
 
@@ -127,12 +127,12 @@ func (s *ChatSession) GetMaxTokens() int {
 func (s *ChatSession) SetSystemMessage(content string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Remove existing system message if present
 	if len(s.history) > 0 && s.history[0].Role == "system" {
 		s.history = s.history[1:]
 	}
-	
+
 	// Add new system message at the beginning
 	systemMsg := openai.Message{
 		Role:    "system",
@@ -145,17 +145,17 @@ func (s *ChatSession) SetSystemMessage(content string) {
 func (s *ChatSession) SendMessage(input string) (*AgenticResponse, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Add user message to history
 	userMsg := openai.Message{
 		Role:    "user",
 		Content: input,
 	}
 	s.history = append(s.history, userMsg)
-	
+
 	maxIterations := 10 // Prevent infinite loops
 	iteration := 0
-	
+
 	for iteration < maxIterations {
 		iteration++
 		// Create chat completion request
@@ -165,23 +165,23 @@ func (s *ChatSession) SendMessage(input string) (*AgenticResponse, error) {
 			Temperature: s.temperature,
 			MaxTokens:   s.maxTokens,
 		}
-		
+
 		// Send request to LM Studio
 		resp, err := s.client.CreateChatCompletion(s.ctx, req)
 		if err != nil {
 			return nil, fmt.Errorf("chat completion failed: %w", err)
 		}
-		
+
 		if len(resp.Choices) == 0 {
 			return nil, fmt.Errorf("no response choices returned")
 		}
-		
+
 		choice := resp.Choices[0]
 		assistantMsg := choice.Message
-		
+
 		// Add assistant message to history
 		s.history = append(s.history, assistantMsg)
-		
+
 		// If there are tool calls, execute them
 		if len(assistantMsg.ToolCalls) > 0 {
 			err := s.executeToolCalls(assistantMsg.ToolCalls)
@@ -191,7 +191,7 @@ func (s *ChatSession) SendMessage(input string) (*AgenticResponse, error) {
 			// Continue the loop to get the final response
 			continue
 		}
-		
+
 		// No tool calls, return the response
 		return &AgenticResponse{
 			Content:      assistantMsg.Content,
@@ -200,7 +200,7 @@ func (s *ChatSession) SendMessage(input string) (*AgenticResponse, error) {
 			Usage:        resp.Usage,
 		}, nil
 	}
-	
+
 	// If we exit the loop without a response, return the last assistant message if available
 	if len(s.history) > 0 {
 		for i := len(s.history) - 1; i >= 0; i-- {
@@ -214,7 +214,7 @@ func (s *ChatSession) SendMessage(input string) (*AgenticResponse, error) {
 			}
 		}
 	}
-	
+
 	return &AgenticResponse{
 		Content:      fmt.Sprintf("Response reached maximum iterations (%d) without completion", maxIterations),
 		ToolCalls:    false,
@@ -230,7 +230,7 @@ func (s *ChatSession) executeToolCalls(toolCalls []openai.ToolCall) error {
 		if err != nil {
 			result = fmt.Sprintf("Error executing tool %s: %v", toolCall.Function.Name, err)
 		}
-		
+
 		// Add tool result to history
 		toolResultMsg := openai.Message{
 			Role:       "tool",
@@ -246,7 +246,7 @@ func (s *ChatSession) executeToolCalls(toolCalls []openai.ToolCall) error {
 func (s *ChatSession) GetHistory() []openai.Message {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	// Return a copy to prevent external modification
 	history := make([]openai.Message, len(s.history))
 	copy(history, s.history)
@@ -257,7 +257,7 @@ func (s *ChatSession) GetHistory() []openai.Message {
 func (s *ChatSession) SetHistory(history []openai.Message) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	s.history = make([]openai.Message, len(history))
 	copy(s.history, history)
 }
@@ -266,7 +266,7 @@ func (s *ChatSession) SetHistory(history []openai.Message) {
 func (s *ChatSession) ClearHistory() {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	s.history = make([]openai.Message, 0)
 }
 
@@ -279,7 +279,7 @@ func (s *ChatSession) ListModels() ([]string, error) {
 func (s *ChatSession) SetModel(model string) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	s.model = model
 }
 
@@ -287,7 +287,7 @@ func (s *ChatSession) SetModel(model string) {
 func (s *ChatSession) GetModel() string {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	return s.model
 }
 
@@ -300,12 +300,12 @@ func (s *ChatSession) ModelInfo() (string, error) {
 		"tools_count": len(s.client.Tools),
 		"tools":       s.getToolNames(),
 	}
-	
+
 	jsonData, err := json.MarshalIndent(info, "", "  ")
 	if err != nil {
 		return "", fmt.Errorf("failed to marshal model info: %w", err)
 	}
-	
+
 	return string(jsonData), nil
 }
 
@@ -326,22 +326,22 @@ func (s *ChatSession) Close() error {
 
 // AgenticResponse represents a response from the agentic chat session
 type AgenticResponse struct {
-	Content      string           `json:"content"`
-	ToolCalls    bool             `json:"tool_calls"`
-	FinishReason string           `json:"finish_reason"`
-	Usage        openai.Usage     `json:"usage"`
+	Content      string       `json:"content"`
+	ToolCalls    bool         `json:"tool_calls"`
+	FinishReason string       `json:"finish_reason"`
+	Usage        openai.Usage `json:"usage"`
 }
 
 // FormatResponse formats the response for display
 func (r *AgenticResponse) FormatResponse() string {
 	var result strings.Builder
-	
+
 	result.WriteString(r.Content)
-	
+
 	if r.ToolCalls {
 		result.WriteString("\n\n---\n")
 		result.WriteString("🔧 *Generated using MCP tools (filesystem & web search)*")
 	}
-	
+
 	return result.String()
 }

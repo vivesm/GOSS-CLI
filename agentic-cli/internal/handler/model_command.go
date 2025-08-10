@@ -7,26 +7,26 @@ import (
 	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
 )
 
-// AgenticModelCommand handles model operations for agentic sessions
-type AgenticModelCommand struct {
-	*IO
+// ModelCommand handles model operations for sessions
+type ModelCommand struct {
+	BaseCommand
 	session   *agentic.ChatSession
 	modelName string
 }
 
-var _ MessageHandler = (*AgenticModelCommand)(nil)
+var _ MessageHandler = (*ModelCommand)(nil)
 
-// NewAgenticModelCommand returns a new AgenticModelCommand
-func NewAgenticModelCommand(io *IO, session *agentic.ChatSession, modelName string) *AgenticModelCommand {
-	return &AgenticModelCommand{
-		IO:        io,
-		session:   session,
-		modelName: modelName,
+// NewModelCommand returns a new ModelCommand
+func NewModelCommand(io *IO, session *agentic.ChatSession, modelName string) *ModelCommand {
+	return &ModelCommand{
+		BaseCommand: NewBaseCommand(io),
+		session:     session,
+		modelName:   modelName,
 	}
 }
 
 // Handle processes model-related commands
-func (m *AgenticModelCommand) Handle(_ string) (Response, bool) {
+func (m *ModelCommand) Handle(_ string) (Response, bool) {
 	items := []string{
 		"Select model",
 		"Show model information",
@@ -55,7 +55,7 @@ func (m *AgenticModelCommand) Handle(_ string) (Response, bool) {
 	}
 }
 
-func (m *AgenticModelCommand) selectModel() Response {
+func (m *ModelCommand) selectModel() Response {
 	models, err := m.session.ListModels()
 	if err != nil {
 		return newErrorResponse(fmt.Errorf("failed to list models: %w", err))
@@ -103,7 +103,7 @@ func (m *AgenticModelCommand) selectModel() Response {
 	return dataResponse(fmt.Sprintf("Selected model: %s", result))
 }
 
-func (m *AgenticModelCommand) showModelInfo() Response {
+func (m *ModelCommand) showModelInfo() Response {
 	modelInfo, err := m.session.ModelInfo()
 	if err != nil {
 		return newErrorResponse(fmt.Errorf("failed to get model info: %w", err))
@@ -112,7 +112,7 @@ func (m *AgenticModelCommand) showModelInfo() Response {
 	return dataResponse(modelInfo)
 }
 
-func (m *AgenticModelCommand) listTools() Response {
+func (m *ModelCommand) listTools() Response {
 	modelInfo, err := m.session.ModelInfo()
 	if err != nil {
 		return newErrorResponse(fmt.Errorf("failed to get model info: %w", err))

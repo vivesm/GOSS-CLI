@@ -11,26 +11,26 @@ import (
 	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
-// AgenticHistoryCommand handles history operations for agentic sessions
-type AgenticHistoryCommand struct {
-	*IO
+// HistoryCommand handles history operations for sessions
+type HistoryCommand struct {
+	BaseCommand
 	session       *agentic.ChatSession
 	configuration *config.Configuration
 }
 
-var _ MessageHandler = (*AgenticHistoryCommand)(nil)
+var _ MessageHandler = (*HistoryCommand)(nil)
 
-// NewAgenticHistoryCommand returns a new AgenticHistoryCommand
-func NewAgenticHistoryCommand(io *IO, session *agentic.ChatSession, configuration *config.Configuration) *AgenticHistoryCommand {
-	return &AgenticHistoryCommand{
-		IO:            io,
+// NewHistoryCommand returns a new HistoryCommand
+func NewHistoryCommand(io *IO, session *agentic.ChatSession, configuration *config.Configuration) *HistoryCommand {
+	return &HistoryCommand{
+		BaseCommand:   NewBaseCommand(io),
 		session:       session,
 		configuration: configuration,
 	}
 }
 
 // Handle processes history-related commands
-func (h *AgenticHistoryCommand) Handle(_ string) (Response, bool) {
+func (h *HistoryCommand) Handle(_ string) (Response, bool) {
 	items := []string{
 		"Clear history",
 		"Save history",
@@ -62,12 +62,12 @@ func (h *AgenticHistoryCommand) Handle(_ string) (Response, bool) {
 	}
 }
 
-func (h *AgenticHistoryCommand) clearHistory() Response {
+func (h *HistoryCommand) clearHistory() Response {
 	h.session.ClearHistory()
 	return dataResponse("Chat history cleared")
 }
 
-func (h *AgenticHistoryCommand) saveHistory() Response {
+func (h *HistoryCommand) saveHistory() Response {
 	history := h.session.GetHistory()
 	if len(history) == 0 {
 		return dataResponse("No history to save")
@@ -96,7 +96,7 @@ func (h *AgenticHistoryCommand) saveHistory() Response {
 	return dataResponse(fmt.Sprintf("History saved as: %s", key))
 }
 
-func (h *AgenticHistoryCommand) loadHistory() Response {
+func (h *HistoryCommand) loadHistory() Response {
 	if h.configuration.Data.History == nil || len(h.configuration.Data.History) == 0 {
 		return dataResponse("No saved history records found")
 	}
@@ -132,13 +132,13 @@ func (h *AgenticHistoryCommand) loadHistory() Response {
 	return dataResponse(fmt.Sprintf("Loaded history: %s (%d messages)", result, len(history)))
 }
 
-func (h *AgenticHistoryCommand) deleteAllHistory() Response {
+func (h *HistoryCommand) deleteAllHistory() Response {
 	if h.configuration.Data.History == nil || len(h.configuration.Data.History) == 0 {
 		return dataResponse("No history records to delete")
 	}
 
 	count := len(h.configuration.Data.History)
-	
+
 	// Confirm deletion
 	prompt := promptui.Prompt{
 		Label:     fmt.Sprintf("Delete all %d history records? (y/N)", count),
@@ -152,7 +152,7 @@ func (h *AgenticHistoryCommand) deleteAllHistory() Response {
 
 	// Clear history
 	h.configuration.Data.History = make(map[string]interface{})
-	
+
 	// Write configuration
 	if err := h.configuration.Write(); err != nil {
 		return newErrorResponse(fmt.Errorf("failed to delete history: %w", err))

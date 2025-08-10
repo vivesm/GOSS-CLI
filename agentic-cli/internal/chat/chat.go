@@ -10,7 +10,7 @@ import (
 type Chat struct {
 	io *terminal.IO
 
-	gossHandler handler.MessageHandler
+	gossHandler   handler.MessageHandler
 	systemHandler handler.MessageHandler
 }
 
@@ -30,7 +30,7 @@ func (c *Chat) Start() {
 	for {
 		c.io.SetUserPrompt()
 		input := c.io.Read()
-		
+
 		if input == "" {
 			continue
 		}

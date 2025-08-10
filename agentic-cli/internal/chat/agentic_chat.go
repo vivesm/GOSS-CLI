@@ -32,7 +32,7 @@ func NewAgentic(
 
 	// Create agentic system handler
 	systemIO := handler.NewIO(terminalIO, terminalIO.Prompt.System)
-	systemHandler, err := handler.NewAgenticSystem(systemIO, session, configuration,
+	systemHandler, err := handler.NewSystem(systemIO, session, configuration,
 		opts.GenerativeModel, opts.rendererOptions())
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func NewAgentic(
 
 	return &Chat{
 		io:            terminalIO,
-		gossHandler: agenticHandler,  // Updated field name for GOSS
+		gossHandler:   agenticHandler, // Updated field name for GOSS
 		systemHandler: systemHandler,
 	}, nil
 }

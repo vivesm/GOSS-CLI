@@ -66,7 +66,7 @@ func webSearchHandler(ctx context.Context, args map[string]interface{}) (string,
 	if !ok {
 		return "", fmt.Errorf("query must be a string")
 	}
-	
+
 	count := 5 // default
 	if c, ok := args["count"].(float64); ok {
 		count = int(c)
@@ -77,53 +77,53 @@ func webSearchHandler(ctx context.Context, args map[string]interface{}) (string,
 			count = 1
 		}
 	}
-	
+
 	// For now, we'll use a simple HTTP search instead of Brave API
 	// In production, you'd want to use proper Brave Search API with API key
 	results, err := performWebSearch(ctx, query, count)
 	if err != nil {
 		return "", fmt.Errorf("web search failed: %w", err)
 	}
-	
+
 	return formatSearchResults(query, results), nil
 }
 
 func performWebSearch(ctx context.Context, query string, count int) ([]SearchResult, error) {
 	// Try to load Brave API key from .env.brave.api file
 	apiKey := loadBraveAPIKey()
-	
+
 	client := &http.Client{Timeout: 10 * time.Second}
-	
+
 	if apiKey != "" {
 		// Use Brave Search API if we have a key
-		apiURL := fmt.Sprintf("https://api.search.brave.com/res/v1/web/search?q=%s&count=%d", 
+		apiURL := fmt.Sprintf("https://api.search.brave.com/res/v1/web/search?q=%s&count=%d",
 			url.QueryEscape(query), count)
-		
+
 		req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 		if err != nil {
 			return nil, err
 		}
-		
+
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("X-Subscription-Token", apiKey)
 		req.Header.Set("User-Agent", "goss-cli/1.0")
-		
+
 		resp, err := client.Do(req)
 		if err != nil {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		
+
 		if resp.StatusCode != http.StatusOK {
 			// Fallback to DuckDuckGo if Brave API fails
 			return performDuckDuckGoSearch(ctx, query, count)
 		}
-		
+
 		var braveResp BraveSearchResponse
 		if err := json.NewDecoder(resp.Body).Decode(&braveResp); err != nil {
 			return nil, err
 		}
-		
+
 		var results []SearchResult
 		for i, r := range braveResp.Web.Results {
 			if i >= count {
@@ -137,38 +137,38 @@ func performWebSearch(ctx context.Context, query string, count int) ([]SearchRes
 		}
 		return results, nil
 	}
-	
+
 	// Fallback to DuckDuckGo if no API key
 	return performDuckDuckGoSearch(ctx, query, count)
 }
 
 func performDuckDuckGoSearch(ctx context.Context, query string, count int) ([]SearchResult, error) {
 	client := &http.Client{Timeout: 10 * time.Second}
-	
+
 	// Use DuckDuckGo API as fallback
-	apiURL := fmt.Sprintf("https://api.duckduckgo.com/?q=%s&format=json&no_html=1&skip_disambig=1", 
+	apiURL := fmt.Sprintf("https://api.duckduckgo.com/?q=%s&format=json&no_html=1&skip_disambig=1",
 		url.QueryEscape(query))
-	
+
 	req, err := http.NewRequestWithContext(ctx, "GET", apiURL, nil)
 	if err != nil {
 		return nil, err
 	}
-	
+
 	req.Header.Set("User-Agent", "goss-cli/1.0")
-	
+
 	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	
+
 	var ddgResponse DuckDuckGoResponse
 	if err := json.NewDecoder(resp.Body).Decode(&ddgResponse); err != nil {
 		return nil, err
 	}
-	
+
 	var results []SearchResult
-	
+
 	// Add instant answer if available
 	if ddgResponse.AbstractText != "" {
 		results = append(results, SearchResult{
@@ -177,7 +177,7 @@ func performDuckDuckGoSearch(ctx context.Context, query string, count int) ([]Se
 			Description: ddgResponse.AbstractText,
 		})
 	}
-	
+
 	// Add related topics
 	for i, topic := range ddgResponse.RelatedTopics {
 		if i >= count-1 { // Save space for instant answer
@@ -191,7 +191,7 @@ func performDuckDuckGoSearch(ctx context.Context, query string, count int) ([]Se
 			})
 		}
 	}
-	
+
 	// If we don't have enough results, add some mock results
 	// In production, you'd implement proper search API integration
 	if len(results) == 0 {
@@ -203,7 +203,7 @@ func performDuckDuckGoSearch(ctx context.Context, query string, count int) ([]Se
 			},
 		}
 	}
-	
+
 	return results, nil
 }
 
@@ -214,10 +214,10 @@ type SearchResult struct {
 }
 
 type DuckDuckGoResponse struct {
-	AbstractText   string `json:"AbstractText"`
-	AbstractURL    string `json:"AbstractURL"`
-	Heading        string `json:"Heading"`
-	RelatedTopics  []RelatedTopic `json:"RelatedTopics"`
+	AbstractText  string         `json:"AbstractText"`
+	AbstractURL   string         `json:"AbstractURL"`
+	Heading       string         `json:"Heading"`
+	RelatedTopics []RelatedTopic `json:"RelatedTopics"`
 }
 
 type RelatedTopic struct {
@@ -242,13 +242,13 @@ func loadBraveAPIKey() string {
 	if key := os.Getenv("BRAVE_API_KEY"); key != "" {
 		return strings.TrimSpace(key)
 	}
-	
+
 	// Then try .env.brave.api file
 	data, err := os.ReadFile(".env.brave.api")
 	if err == nil {
 		return strings.TrimSpace(string(data))
 	}
-	
+
 	// Try from home directory
 	homeDir, err := os.UserHomeDir()
 	if err == nil {
@@ -257,24 +257,24 @@ func loadBraveAPIKey() string {
 			return strings.TrimSpace(string(data))
 		}
 	}
-	
+
 	return ""
 }
 
 func formatSearchResults(query string, results []SearchResult) string {
 	var output strings.Builder
 	output.WriteString(fmt.Sprintf("Web search results for: %s\n\n", query))
-	
+
 	if len(results) == 0 {
 		output.WriteString("No results found. Try a different search query.\n")
 		return output.String()
 	}
-	
+
 	for i, result := range results {
 		output.WriteString(fmt.Sprintf("%d. %s\n", i+1, result.Title))
 		output.WriteString(fmt.Sprintf("   URL: %s\n", result.URL))
 		output.WriteString(fmt.Sprintf("   %s\n\n", result.Description))
 	}
-	
+
 	return output.String()
 }

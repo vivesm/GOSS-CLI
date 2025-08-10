@@ -43,7 +43,7 @@ func (h *AgenticQuery) Handle(message string) (Response, bool) {
 
 	// Format the response content
 	content := response.FormatResponse()
-	
+
 	// Render markdown
 	rendered, err := h.renderer.Render(content)
 	if err != nil {

@@ -6,18 +6,18 @@ import (
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
 )
 
-// AgenticSystem processes chat system commands for agentic sessions
+// System processes chat system commands for sessions
 // It implements the MessageHandler interface.
-type AgenticSystem struct {
-	*IO
+type System struct {
+	BaseCommand
 	handlers map[string]MessageHandler
 }
 
-var _ MessageHandler = (*AgenticSystem)(nil)
+var _ MessageHandler = (*System)(nil)
 
-// NewAgenticSystem returns a new AgenticSystem command handler.
-func NewAgenticSystem(io *IO, session *agentic.ChatSession, configuration *config.Configuration,
-	modelName string, rendererOptions RendererOptions) (*AgenticSystem, error) {
+// NewSystem returns a new System command handler.
+func NewSystem(io *IO, session *agentic.ChatSession, configuration *config.Configuration,
+	modelName string, rendererOptions RendererOptions) (*System, error) {
 	helpCommandHandler, err := NewHelpCommand(io, rendererOptions)
 	if err != nil {
 		return nil, err
@@ -26,21 +26,21 @@ func NewAgenticSystem(io *IO, session *agentic.ChatSession, configuration *confi
 	handlers := map[string]MessageHandler{
 		cli.SystemCmdHelp:            helpCommandHandler,
 		cli.SystemCmdQuit:            NewQuitCommand(io),
-		cli.SystemCmdSelectPrompt:    NewAgenticPromptCommand(io, session, configuration.Data),
+		cli.SystemCmdSelectPrompt:    NewPromptCommand(io, session, configuration.Data),
 		cli.SystemCmdSelectInputMode: NewInputModeCommand(io),
-		cli.SystemCmdModel:           NewAgenticModelCommand(io, session, modelName),
-		cli.SystemCmdHistory:         NewAgenticHistoryCommand(io, session, configuration),
-		cli.SystemCmdTemperature:     NewAgenticTemperatureCommand(io, session),
+		cli.SystemCmdModel:           NewModelCommand(io, session, modelName),
+		cli.SystemCmdHistory:         NewHistoryCommand(io, session, configuration),
+		cli.SystemCmdTemperature:     NewTemperatureCommand(io, session),
 	}
 
-	return &AgenticSystem{
-		IO:       io,
-		handlers: handlers,
+	return &System{
+		BaseCommand: NewBaseCommand(io),
+		handlers:    handlers,
 	}, nil
 }
 
 // Handle processes the chat system command.
-func (s *AgenticSystem) Handle(message string) (Response, bool) {
+func (s *System) Handle(message string) (Response, bool) {
 	commandName, err := cli.ExtractSystemCommandName(message)
 	if err != nil {
 		return newErrorResponse(err), false

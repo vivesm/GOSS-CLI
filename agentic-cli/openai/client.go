@@ -24,7 +24,7 @@ func NewClient(baseURL, apiKey string) *Client {
 	if !strings.HasSuffix(baseURL, "/") {
 		baseURL += "/"
 	}
-	
+
 	return &Client{
 		BaseURL: baseURL,
 		APIKey:  apiKey,
@@ -52,10 +52,10 @@ type ChatCompletionRequest struct {
 
 // Message represents a chat message
 type Message struct {
-	Role         string      `json:"role"`
-	Content      string      `json:"content,omitempty"`
-	ToolCalls    []ToolCall  `json:"tool_calls,omitempty"`
-	ToolCallID   string      `json:"tool_call_id,omitempty"`
+	Role       string     `json:"role"`
+	Content    string     `json:"content,omitempty"`
+	ToolCalls  []ToolCall `json:"tool_calls,omitempty"`
+	ToolCallID string     `json:"tool_call_id,omitempty"`
 }
 
 // ToolCall represents a function call
@@ -118,38 +118,38 @@ func (c *Client) CreateChatCompletion(ctx context.Context, req ChatCompletionReq
 	if len(c.Tools) > 0 {
 		req.Tools = c.Tools
 	}
-	
+
 	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("marshal request: %w", err)
 	}
-	
+
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.BaseURL+"chat/completions", bytes.NewReader(reqBody))
 	if err != nil {
 		return nil, fmt.Errorf("create request: %w", err)
 	}
-	
+
 	httpReq.Header.Set("Content-Type", "application/json")
 	if c.APIKey != "" {
 		httpReq.Header.Set("Authorization", "Bearer "+c.APIKey)
 	}
-	
+
 	resp, err := c.httpClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("send request: %w", err)
 	}
 	defer resp.Body.Close()
-	
+
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("API error (%d): %s", resp.StatusCode, string(body))
 	}
-	
+
 	var chatResp ChatCompletionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&chatResp); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
 	}
-	
+
 	return &chatResp, nil
 }
 
@@ -163,17 +163,17 @@ func (c *Client) ExecuteTool(ctx context.Context, toolCall ToolCall) (string, er
 			break
 		}
 	}
-	
+
 	if handler == nil {
 		return "", fmt.Errorf("tool not found: %s", toolCall.Function.Name)
 	}
-	
+
 	// Parse arguments
 	var args map[string]interface{}
 	if err := json.Unmarshal([]byte(toolCall.Function.Arguments), &args); err != nil {
 		return "", fmt.Errorf("parse tool arguments: %w", err)
 	}
-	
+
 	// Execute tool
 	return handler(ctx, args)
 }

@@ -5,10 +5,10 @@ import (
 	"os"
 	"os/user"
 
+	"github.com/spf13/cobra"
 	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/chat"
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
-	"github.com/spf13/cobra"
 )
 
 const (
@@ -57,7 +57,7 @@ func run() int {
 			Temperature: 0.3, // Default focused temperature, changeable with !t
 			MaxTokens:   2048,
 		}
-		
+
 		chatSession, err := agentic.NewChatSession(context.Background(), sessionConfig)
 		if err != nil {
 			return err

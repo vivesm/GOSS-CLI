@@ -17,8 +17,8 @@ type Prompt struct {
 	User              string
 	UserMultiline     string
 	UserMultilineNext string
-	Goss              string  // AI assistant prompt
-	System            string  // System command prompt
+	Goss              string // AI assistant prompt
+	System            string // System command prompt
 }
 
 type promptColor struct {

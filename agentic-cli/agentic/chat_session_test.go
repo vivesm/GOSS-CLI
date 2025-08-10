@@ -29,8 +29,14 @@ func TestNewChatSession(t *testing.T) {
 		t.Errorf("Expected model %s, got %s", config.Model, session.model)
 	}
 
-	if len(session.history) != 0 {
-		t.Errorf("Expected empty history, got %d messages", len(session.history))
+	// Should have 1 message (system message)
+	if len(session.history) != 1 {
+		t.Errorf("Expected 1 system message in history, got %d messages", len(session.history))
+	}
+
+	// First message should be system message
+	if len(session.history) > 0 && session.history[0].Role != "system" {
+		t.Errorf("Expected first message to be system message, got %s", session.history[0].Role)
 	}
 }
 
@@ -100,11 +106,14 @@ func TestChatSessionHistoryOperations(t *testing.T) {
 		t.Fatalf("NewChatSession failed: %v", err)
 	}
 
-	// Test initial empty history
+	// Test initial history (should have system message)
 	history := session.GetHistory()
-	if len(history) != 0 {
-		t.Errorf("Expected empty history, got %d messages", len(history))
+	if len(history) != 1 {
+		t.Errorf("Expected 1 system message in history, got %d messages", len(history))
 	}
+
+	// Clear history for testing
+	session.ClearHistory()
 
 	// Test setting history
 	testHistory := []openai.Message{
@@ -148,7 +157,7 @@ func TestAgenticResponseFormatResponse(t *testing.T) {
 	// Test response with tool calls
 	response.ToolCalls = true
 	formatted = response.FormatResponse()
-	expected = "Hello, world!\n\n[Tools were used to generate this response]"
+	expected = "Hello, world!\n\n---\n🔧 *Generated using MCP tools (filesystem & web search)*"
 	if formatted != expected {
 		t.Errorf("Expected %q, got %q", expected, formatted)
 	}
