@@ -1,6 +1,6 @@
 # Installation Guide
 
-This guide covers different ways to install and run the Gemini CLI.
+This guide covers different ways to install and run the GOSS CLI.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ make build
 
 # Or build manually
 go mod tidy
-go build -ldflags "-X main.version=$(date +%Y%m%d)" -o bin/gemini cmd/gemini/main.go
+go build -ldflags "-X main.version=$(date +%Y%m%d)" -o bin/gossai cmd/goss/main.go
 ```
 
 ### Method 2: Using Make (Development)
@@ -54,7 +54,7 @@ make clean
 
 ```bash
 # Build Docker image
-docker build -t gemini .
+docker build -t gossai .
 
 # Run with Docker Compose
 docker-compose up
@@ -62,8 +62,8 @@ docker-compose up
 # Or run directly
 docker run -it --rm \
   -e LMSTUDIO_BASE_URL=http://host.docker.internal:1234/v1 \
-  -v $(pwd)/gemini_cli_config.json:/home/appuser/gemini_cli_config.json \
-  gemini
+  -v $(pwd)/goss_config.json:/home/appuser/goss_config.json \
+  gossai
 ```
 
 ## Setup LM Studio
@@ -120,29 +120,29 @@ DEFAULT_MODEL=openai/gpt-oss-20b
 
 Create configuration file (copy from example):
 ```bash
-cp gemini_cli_config.json.example gemini_cli_config.json
+cp goss_config.json.example goss_config.json
 ```
 
-Edit `gemini_cli_config.json` to customize system prompts and settings.
+Edit `goss_config.json` to customize system prompts and settings.
 
 ## First Run
 
 ### Basic Usage
 ```bash
 # Run the CLI
-./bin/gemini
+./bin/gossai
 
 # With custom settings
-./bin/gemini --base-url http://localhost:1234/v1 --model "mistral-7b-instruct"
+./bin/gossai --base-url http://localhost:1234/v1 --model "mistral-7b-instruct"
 
 # Show help
-./bin/gemini --help
+./bin/gossai --help
 ```
 
 ### Test the Installation
 ```bash
 # Start the CLI
-./bin/gemini
+./bin/gossai
 
 # Try these commands in the CLI:
 > Hello! Can you help me?
@@ -159,10 +159,10 @@ Edit `gemini_cli_config.json` to customize system prompts and settings.
 ### Check Installation
 ```bash
 # Verify binary exists
-ls -la bin/gemini
+ls -la bin/gossai
 
 # Check version
-./bin/gemini --version
+./bin/gossai --version
 
 # Test connection to LM Studio
 curl http://localhost:1234/v1/models
@@ -188,7 +188,7 @@ go test ./...
 **"Permission denied"**
 ```bash
 chmod +x build.sh
-chmod +x bin/gemini
+chmod +x bin/gossai
 ```
 
 ### Runtime Issues
@@ -225,7 +225,7 @@ make uninstall
 make clean
 
 # Remove Docker images
-docker rmi gemini
+docker rmi gossai
 ```
 
 ## Next Steps

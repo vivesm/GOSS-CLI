@@ -1,32 +1,31 @@
 # Usage Guide
 
-## You Have Two Different Programs
+## About GOSS CLI
 
-1. **System-wide `gemini`** - A different CLI tool (shows the ASCII banner)
-   - Located somewhere in your PATH
-   - Different project with different features
+GOSS CLI is a command-line interface for chatting with local LLMs using LM Studio and MCP tools.
 
-2. **This Project's `gemini`** - The LM Studio + MCP tools version
-   - Located at: `./bin/gemini` 
-   - Works with LM Studio and openai/gpt-oss-20b model
-   - Includes MCP tools for file operations and web search
+**Key Features:**
+- Chat with local LLMs via LM Studio
+- MCP tools for file operations and web search
+- Function calling support for advanced interactions
+- Clean terminal interface with system commands
 
-## How to Run This Project's Gemini
+## How to Run GOSS CLI
 
 From this directory (`/Users/melvin/Developer/GitHub/GOSS-CLI/agentic-cli`):
 
 ```bash
 # Run directly
-./bin/gemini
+./bin/gossai
 
 # With options
-./bin/gemini --model "openai/gpt-oss-20b" --base-url "http://localhost:1234/v1"
+./bin/gossai --model "openai/gpt-oss-20b" --base-url "http://localhost:1234/v1"
 
 # Check version
-./bin/gemini --version
+./bin/gossai --version
 
 # Get help
-./bin/gemini --help
+./bin/gossai --help
 ```
 
 ## Prerequisites
@@ -41,7 +40,7 @@ From this directory (`/Users/melvin/Developer/GitHub/GOSS-CLI/agentic-cli`):
 2. **Run the CLI**
    ```bash
    cd /Users/melvin/Developer/GitHub/GOSS-CLI/agentic-cli
-   ./bin/gemini
+   ./bin/gossai
    ```
 
 ## Features
@@ -58,11 +57,11 @@ From this directory (`/Users/melvin/Developer/GitHub/GOSS-CLI/agentic-cli`):
 
 ## Troubleshooting
 
-If you get "command not found", make sure you're in the right directory and use `./bin/gemini` (with the `./` prefix).
+If you get "command not found", make sure you're in the right directory and use `./bin/gossai` (with the `./` prefix).
 
 If you want to install it system-wide:
 ```bash
-make install  # Installs to /usr/local/bin
+make install  # Installs to ~/.local/bin as gossai
 ```
 
-Then you can run it from anywhere as just `gemini` (but it might conflict with your other gemini tool).
+Then you can run it from anywhere as just `gossai`.

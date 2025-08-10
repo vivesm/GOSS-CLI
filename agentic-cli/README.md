@@ -29,9 +29,8 @@ cd agentic-cli
 make install
 ```
 
-This installs two commands:
-- `goss-mcp` - The main command
-- `gossai` - Alternative shorter name
+This installs the command:
+- `gossai` - The main command
 
 **Uninstall**:
 ```bash
@@ -60,22 +59,20 @@ go build -o bin/goss cmd/goss/main.go
 
 ```bash
 # Basic usage (if installed system-wide)
-goss-mcp
-# or
 gossai
 
 # Local build usage
 ./bin/goss
 
 # With custom LM Studio endpoint
-goss-mcp --base-url http://localhost:1234/v1
+gossai --base-url http://localhost:1234/v1
 
 # With specific model
-goss-mcp --model "mistral-7b-instruct"
+gossai --model "mistral-7b-instruct"
 
 # With API key (if required)
 export LMSTUDIO_API_KEY=your-key-here
-goss-mcp
+gossai
 ```
 
 ## MCP Tools Available
@@ -216,7 +213,7 @@ go run test_filesystem_detailed.go  # Test all filesystem operations
 go run test_mcp.go                  # Test MCP integration
 
 # Manual testing
-goss-mcp  # or ./bin/goss for local build
+gossai  # or ./bin/goss for local build
 > !m  # Test model operations  
 > !h  # Test history operations
 > List files in current directory  # Test filesystem tools

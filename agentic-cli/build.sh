@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Build script for Gemini Agentic CLI
+# Build script for GOSS CLI
 set -e
 
-echo "🔨 Building Gemini Agentic CLI..."
+echo "🔨 Building GOSS CLI..."
 
 # Check if Go is installed
 if ! command -v go &> /dev/null; then

@@ -17,7 +17,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$(date +%Y%m%d)-docker" -o gemini cmd/gemini/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.version=$(date +%Y%m%d)-docker" -o gossai cmd/goss/main.go
 
 # Final stage
 FROM alpine:latest
@@ -32,7 +32,7 @@ RUN addgroup -g 1001 -S appuser && \
 WORKDIR /home/appuser
 
 # Copy the binary from builder stage
-COPY --from=builder /app/gemini .
+COPY --from=builder /app/gossai .
 
 # Copy configuration example
 COPY --from=builder /app/goss_config.json.example .
@@ -47,5 +47,5 @@ USER appuser
 EXPOSE 8080
 
 # Default command
-ENTRYPOINT ["./gemini"]
+ENTRYPOINT ["./gossai"]
 CMD ["--help"]

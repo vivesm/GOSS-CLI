@@ -89,17 +89,17 @@ jobs:
     - name: Build binary
       run: |
         mkdir -p bin
-        go build -ldflags "-X main.version=${{ github.sha }}-ci" -o bin/gemini-agentic${{ matrix.os == 'windows-latest' && '.exe' || '' }} cmd/agentic/main.go
+        go build -ldflags "-X main.version=${{ github.sha }}-ci" -o bin/gossai${{ matrix.os == 'windows-latest' && '.exe' || '' }} cmd/goss/main.go
 
     - name: Test binary
       run: |
-        ./bin/gemini-agentic${{ matrix.os == 'windows-latest' && '.exe' || '' }} --help
+        ./bin/gossai${{ matrix.os == 'windows-latest' && '.exe' || '' }} --help
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:
-        name: gemini-agentic-${{ matrix.os }}
-        path: bin/gemini-agentic${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+        name: gossai-${{ matrix.os }}
+        path: bin/gossai${{ matrix.os == 'windows-latest' && '.exe' || '' }}
 
   docker:
     name: Docker Build
@@ -125,7 +125,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ secrets.DOCKER_USERNAME }}/gemini-agentic
+        images: ${{ secrets.DOCKER_USERNAME }}/gossai
         tags: |
           type=ref,event=branch
           type=ref,event=pr
@@ -163,19 +163,19 @@ jobs:
         mkdir -p dist
         
         # Linux amd64
-        GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gemini-agentic-linux-amd64 cmd/agentic/main.go
+        GOOS=linux GOARCH=amd64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gossai-linux-amd64 cmd/goss/main.go
         
         # Linux arm64
-        GOOS=linux GOARCH=arm64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gemini-agentic-linux-arm64 cmd/agentic/main.go
+        GOOS=linux GOARCH=arm64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gossai-linux-arm64 cmd/goss/main.go
         
         # macOS amd64
-        GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gemini-agentic-darwin-amd64 cmd/agentic/main.go
+        GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gossai-darwin-amd64 cmd/goss/main.go
         
         # macOS arm64 (Apple Silicon)
-        GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gemini-agentic-darwin-arm64 cmd/agentic/main.go
+        GOOS=darwin GOARCH=arm64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gossai-darwin-arm64 cmd/goss/main.go
         
         # Windows amd64
-        GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gemini-agentic-windows-amd64.exe cmd/agentic/main.go
+        GOOS=windows GOARCH=amd64 go build -ldflags "-X main.version=${{ github.event.release.tag_name }}" -o dist/gossai-windows-amd64.exe cmd/goss/main.go
 
     - name: Create checksums
       run: |
@@ -186,7 +186,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist/gemini-agentic-*
+          dist/gossai-*
           dist/checksums.txt
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
