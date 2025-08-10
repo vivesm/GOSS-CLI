@@ -53,15 +53,14 @@ install: build
 	cp $(BUILD_DIR)/$(BINARY_NAME) ~/.local/bin/goss-mcp
 	cp $(BUILD_DIR)/$(BINARY_NAME) ~/.local/bin/goss
 	chmod +x ~/.local/bin/goss-mcp ~/.local/bin/goss
-	ln -sf ~/.local/bin/goss-mcp ~/.local/bin/gossai
-	@echo "✅ Installed successfully as 'goss', 'goss-mcp' and 'gossai'"
-	@echo "💡 Use any of these commands: goss, goss-mcp, gossai"
+	@echo "✅ Installed successfully as 'goss' and 'goss-mcp'"
+	@echo "💡 Use 'goss-mcp' (recommended) or 'goss'"
 	@echo "💡 Note: 'goss' will override any existing goss command in PATH"
 
 # Uninstall binary from system
 uninstall:
 	@echo "🗑️  Uninstalling $(BINARY_NAME)..."
-	rm -f ~/.local/bin/goss-mcp ~/.local/bin/goss ~/.local/bin/gossai
+	rm -f ~/.local/bin/goss-mcp ~/.local/bin/goss
 	@echo "✅ Uninstalled successfully"
 
 # Run the application
@@ -112,4 +111,4 @@ help:
 	@echo "  make build"
 	@echo "  make run"
 	@echo "  make run-custom BASE_URL=http://localhost:8080/v1 MODEL=mistral-7b"
-	@echo "  make install    # Installs as 'goss-mcp' and 'gossai'"
+	@echo "  make install    # Installs as 'goss-mcp' and 'goss'"
