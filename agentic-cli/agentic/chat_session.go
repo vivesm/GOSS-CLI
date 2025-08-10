@@ -11,7 +11,13 @@ import (
 	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
-const DefaultModel = "openai/gpt-oss-20b"
+const (
+	DefaultModel = "openai/gpt-oss-20b"
+	// MaxHistorySize limits conversation history to prevent memory issues
+	MaxHistorySize = 50
+	// MaxContextTokens approximates max context length
+	MaxContextTokens = 4000
+)
 
 // ChatSession represents an agentic chat session with MCP tools
 type ChatSession struct {
@@ -83,12 +89,12 @@ func (s *ChatSession) SetTemperature(temperature float64) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Clamp temperature to valid range
+	// Clamp temperature to valid range (OpenAI standard is 0.0-1.0)
 	if temperature < 0.0 {
 		temperature = 0.0
 	}
-	if temperature > 2.0 {
-		temperature = 2.0
+	if temperature > 1.0 {
+		temperature = 1.0
 	}
 
 	s.temperature = temperature
@@ -152,6 +158,9 @@ func (s *ChatSession) SendMessage(input string) (*AgenticResponse, error) {
 		Content: input,
 	}
 	s.history = append(s.history, userMsg)
+	
+	// Trim history to prevent memory issues
+	s.trimHistory()
 
 	maxIterations := 10 // Prevent infinite loops
 	iteration := 0
@@ -268,6 +277,33 @@ func (s *ChatSession) ClearHistory() {
 	defer s.mu.Unlock()
 
 	s.history = make([]openai.Message, 0)
+}
+
+// trimHistory keeps conversation history within reasonable limits
+func (s *ChatSession) trimHistory() {
+	if len(s.history) <= MaxHistorySize {
+		return
+	}
+
+	// Keep system message if present
+	systemMsg := []openai.Message{}
+	startIdx := 0
+	if len(s.history) > 0 && s.history[0].Role == "system" {
+		systemMsg = s.history[:1]
+		startIdx = 1
+	}
+
+	// Keep the most recent messages within the limit
+	keepCount := MaxHistorySize - len(systemMsg)
+	if keepCount > 0 {
+		startKeep := len(s.history) - keepCount
+		if startKeep < startIdx {
+			startKeep = startIdx
+		}
+		s.history = append(systemMsg, s.history[startKeep:]...)
+	} else {
+		s.history = systemMsg
+	}
 }
 
 // ListModels returns available models

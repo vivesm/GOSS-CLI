@@ -120,6 +120,11 @@ func readFileHandler(ctx context.Context, args map[string]interface{}) (string, 
 		return "", fmt.Errorf("path must be a string")
 	}
 
+	// Security validation
+	if err := validateReadOperation(path); err != nil {
+		return "", fmt.Errorf("security validation failed: %w", err)
+	}
+
 	content, err := os.ReadFile(path)
 	if err != nil {
 		return "", fmt.Errorf("failed to read file %s: %w", path, err)
@@ -139,10 +144,9 @@ func writeFileHandler(ctx context.Context, args map[string]interface{}) (string,
 		return "", fmt.Errorf("content must be a string")
 	}
 
-	// Create directory if it doesn't exist
-	dir := filepath.Dir(path)
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		return "", fmt.Errorf("failed to create directory %s: %w", dir, err)
+	// Security validation
+	if err := validateWriteOperation(path, len(content)); err != nil {
+		return "", fmt.Errorf("security validation failed: %w", err)
 	}
 
 	err := os.WriteFile(path, []byte(content), 0644)
@@ -157,6 +161,11 @@ func listDirectoryHandler(ctx context.Context, args map[string]interface{}) (str
 	path, ok := args["path"].(string)
 	if !ok {
 		return "", fmt.Errorf("path must be a string")
+	}
+
+	// Security validation  
+	if err := validatePath(path); err != nil {
+		return "", fmt.Errorf("security validation failed: %w", err)
 	}
 
 	entries, err := os.ReadDir(path)
@@ -194,6 +203,11 @@ func searchFilesHandler(ctx context.Context, args map[string]interface{}) (strin
 		return "", fmt.Errorf("pattern must be a string")
 	}
 
+	// Security validation
+	if err := validatePath(basePath); err != nil {
+		return "", fmt.Errorf("security validation failed: %w", err)
+	}
+
 	var matches []string
 
 	err := filepath.Walk(basePath, func(path string, info os.FileInfo, err error) error {
@@ -229,6 +243,11 @@ func createDirectoryHandler(ctx context.Context, args map[string]interface{}) (s
 	path, ok := args["path"].(string)
 	if !ok {
 		return "", fmt.Errorf("path must be a string")
+	}
+
+	// Security validation
+	if err := validatePath(path); err != nil {
+		return "", fmt.Errorf("security validation failed: %w", err)
 	}
 
 	err := os.MkdirAll(path, 0755)

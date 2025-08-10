@@ -8,10 +8,63 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
+
+// RateLimiter implements a simple token bucket rate limiter for web searches
+type RateLimiter struct {
+	tokens    int
+	maxTokens int
+	refillRate time.Duration
+	lastRefill time.Time
+	mu         sync.Mutex
+}
+
+// NewRateLimiter creates a new rate limiter
+func NewRateLimiter(maxTokens int, refillRate time.Duration) *RateLimiter {
+	return &RateLimiter{
+		tokens:     maxTokens,
+		maxTokens:  maxTokens,
+		refillRate: refillRate,
+		lastRefill: time.Now(),
+	}
+}
+
+// Allow checks if a request can proceed
+func (rl *RateLimiter) Allow() bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	elapsed := now.Sub(rl.lastRefill)
+	
+	// Refill tokens based on elapsed time
+	if elapsed >= rl.refillRate {
+		tokensToAdd := int(elapsed / rl.refillRate)
+		rl.tokens = min(rl.maxTokens, rl.tokens+tokensToAdd)
+		rl.lastRefill = now
+	}
+
+	if rl.tokens > 0 {
+		rl.tokens--
+		return true
+	}
+
+	return false
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// Global rate limiter for web searches (5 requests per minute)
+var webSearchRateLimiter = NewRateLimiter(5, time.Minute/5)
 
 // CreateWebSearchTools returns web search MCP tools
 func CreateWebSearchTools() []openai.Tool {
@@ -62,9 +115,23 @@ type BraveSearchResponse struct {
 }
 
 func webSearchHandler(ctx context.Context, args map[string]interface{}) (string, error) {
+	// Rate limiting check
+	if !webSearchRateLimiter.Allow() {
+		return "", fmt.Errorf("rate limit exceeded: maximum 5 web searches per minute allowed")
+	}
+
 	query, ok := args["query"].(string)
 	if !ok {
 		return "", fmt.Errorf("query must be a string")
+	}
+
+	// Input validation
+	if len(strings.TrimSpace(query)) == 0 {
+		return "", fmt.Errorf("search query cannot be empty")
+	}
+
+	if len(query) > 1000 {
+		return "", fmt.Errorf("search query too long (max 1000 characters)")
 	}
 
 	count := 5 // default
