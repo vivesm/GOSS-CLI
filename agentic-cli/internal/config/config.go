@@ -14,6 +14,14 @@ type Config struct {
 	filePath      string                 // Path to the configuration file
 	SystemPrompts map[string]string      `json:"SystemPrompts"`
 	History       map[string]interface{} `json:"History"`
+	Streaming     StreamingConfig        `json:"Streaming"`
+}
+
+// StreamingConfig holds streaming and thinking-related settings
+type StreamingConfig struct {
+	Enabled      bool   `json:"enabled"`      // Whether streaming responses are enabled
+	ShowThinking bool   `json:"showThinking"` // Whether to display thinking tokens
+	ThinkingLevel string `json:"thinkingLevel"` // Thinking level: "off", "low", "med", "high"
 }
 
 // NewConfig returns a new Config from a JSON file.
@@ -23,6 +31,7 @@ func NewConfig(filePath string) (*Config, error) {
 		filePath:      filePath,
 		SystemPrompts: getDefaultSystemPrompts(),
 		History:       make(map[string]interface{}),
+		Streaming:     getDefaultStreamingConfig(),
 	}
 
 	// Try to load existing configuration
@@ -117,7 +126,10 @@ func (c *Config) Validate() error {
 	if err := c.ValidateSystemPrompts(); err != nil {
 		return err
 	}
-	return c.ValidateHistory()
+	if err := c.ValidateHistory(); err != nil {
+		return err
+	}
+	return c.ValidateStreaming()
 }
 
 // ValidateSystemPrompts ensures system prompts are valid.
@@ -163,6 +175,22 @@ func (c *Config) ValidateHistory() error {
 	return nil
 }
 
+// ValidateStreaming ensures streaming configuration is valid.
+func (c *Config) ValidateStreaming() error {
+	validThinkingLevels := map[string]bool{
+		"off":  true,
+		"low":  true,
+		"med":  true,
+		"high": true,
+	}
+	
+	if !validThinkingLevels[c.Streaming.ThinkingLevel] {
+		return fmt.Errorf("invalid thinking level '%s': must be one of [off, low, med, high]", c.Streaming.ThinkingLevel)
+	}
+	
+	return nil
+}
+
 // getDefaultSystemPrompts returns the default system prompts.
 func getDefaultSystemPrompts() map[string]string {
 	return map[string]string{
@@ -170,6 +198,15 @@ func getDefaultSystemPrompts() map[string]string {
 		"Developer":  "You are an expert software developer with access to filesystem and web search tools. Help with coding tasks, debugging, and software development questions. Use file operations to read code, search for patterns, and create or modify files as needed. When users ask about current technologies, APIs, or documentation, use web search to get the latest information.",
 		"Researcher": "You are a research assistant with web search capabilities. Help find information online and use filesystem tools to organize research findings into files. Be thorough with web searches - try multiple search queries with different keywords to get comprehensive results. Always verify information by searching from multiple angles.",
 		"Writer":     "You are a writing assistant that can help with document creation and editing. Use filesystem tools to read, write, and organize documents. When writing about current events or factual information, use web search to verify accuracy and get up-to-date details.",
+	}
+}
+
+// getDefaultStreamingConfig returns the default streaming configuration.
+func getDefaultStreamingConfig() StreamingConfig {
+	return StreamingConfig{
+		Enabled:       true,   // Enable streaming by default for better UX
+		ShowThinking:  false,  // Hide thinking by default to avoid noise
+		ThinkingLevel: "med",  // Medium thinking level by default
 	}
 }
 

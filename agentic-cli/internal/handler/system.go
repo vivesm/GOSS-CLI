@@ -31,6 +31,9 @@ func NewSystem(io *IO, session *agentic.ChatSession, configuration *config.Confi
 		cli.SystemCmdModel:           NewModelCommand(io, session, modelName),
 		cli.SystemCmdHistory:         NewHistoryCommand(io, session, configuration),
 		cli.SystemCmdTemperature:     NewTemperatureCommand(io, session),
+		cli.SystemCmdStream:          NewStreamCommand(io, configuration),
+		cli.SystemCmdThinking:        NewThinkingCommand(io, configuration),
+		cli.SystemCmdShowThinking:    NewShowThinkingCommand(io, configuration),
 	}
 
 	return &System{

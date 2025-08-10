@@ -387,6 +387,138 @@ func (s *ChatSession) Close() error {
 	return nil
 }
 
+// StreamingCallback is called for each token/chunk during streaming
+type StreamingCallback func(content string, isThinking bool) error
+
+// SendMessageStream sends a message with streaming responses
+func (s *ChatSession) SendMessageStream(input string, thinkingLevel string, showThinking bool, callback StreamingCallback) (*AgenticResponse, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Add user message to history
+	userMsg := openai.Message{
+		Role:    "user",
+		Content: input,
+	}
+	s.history = append(s.history, userMsg)
+	
+	// Trim history to prevent memory issues
+	s.trimHistory()
+
+	maxIterations := 10 // Prevent infinite loops
+	iteration := 0
+	
+	// Accumulate the complete response
+	var completeContent strings.Builder
+	var toolCallsUsed bool
+	var finishReason string
+
+	for iteration < maxIterations {
+		iteration++
+		
+		// Create chat completion request
+		req := openai.ChatCompletionRequest{
+			Model:       s.model,
+			Messages:    s.history,
+			Temperature: s.temperature,
+			MaxTokens:   s.maxTokens,
+		}
+
+		// Stream the response
+		var currentMessage openai.Message
+		var toolCalls []openai.ToolCall
+		
+		streamCallback := func(chunk openai.ChatCompletionStreamResponse) error {
+			if len(chunk.Choices) == 0 {
+				return nil
+			}
+			
+			choice := chunk.Choices[0]
+			
+			// Handle reasoning (thinking) delta
+			if choice.Delta.Reasoning != "" && showThinking {
+				// This is thinking content from LM Studio
+				if err := callback(choice.Delta.Reasoning, true); err != nil {
+					return err
+				}
+			}
+			
+			// Handle content delta
+			if choice.Delta.Content != "" {
+				// This is regular response content
+				if err := callback(choice.Delta.Content, false); err != nil {
+					return err
+				}
+				
+				// Accumulate content
+				currentMessage.Content += choice.Delta.Content
+				completeContent.WriteString(choice.Delta.Content)
+			}
+			
+			// Handle role
+			if choice.Delta.Role != "" {
+				currentMessage.Role = choice.Delta.Role
+			}
+			
+			// Handle tool calls
+			if len(choice.Delta.ToolCalls) > 0 {
+				toolCalls = append(toolCalls, choice.Delta.ToolCalls...)
+				toolCallsUsed = true
+			}
+			
+			// Handle finish reason
+			if choice.FinishReason != nil {
+				finishReason = *choice.FinishReason
+			}
+			
+			return nil
+		}
+
+		// Send streaming request
+		err := s.client.CreateChatCompletionStream(s.ctx, req, thinkingLevel, showThinking, streamCallback)
+		if err != nil {
+			return nil, fmt.Errorf("streaming chat completion failed: %w", err)
+		}
+
+		// Set role if not set
+		if currentMessage.Role == "" {
+			currentMessage.Role = "assistant"
+		}
+
+		// Add tool calls if any
+		if len(toolCalls) > 0 {
+			currentMessage.ToolCalls = toolCalls
+		}
+
+		// Add assistant message to history
+		s.history = append(s.history, currentMessage)
+
+		// If there are tool calls, execute them
+		if len(toolCalls) > 0 {
+			err := s.executeToolCalls(toolCalls)
+			if err != nil {
+				return nil, fmt.Errorf("tool execution failed: %w", err)
+			}
+			// Continue the loop to get the final response
+			continue
+		}
+
+		// No tool calls, we're done
+		break
+	}
+
+	if iteration >= maxIterations {
+		return nil, fmt.Errorf("maximum iterations reached without completion")
+	}
+
+	return &AgenticResponse{
+		Content:      completeContent.String(),
+		ToolCalls:    toolCallsUsed,
+		FinishReason: finishReason,
+		Usage:        openai.Usage{}, // TODO: Add usage tracking for streaming
+	}, nil
+}
+
 // AgenticResponse represents a response from the agentic chat session
 type AgenticResponse struct {
 	Content      string       `json:"content"`
