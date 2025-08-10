@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -117,11 +118,28 @@ func (c *Client) CreateChatCompletion(ctx context.Context, req ChatCompletionReq
 	// Add tools to request if available
 	if len(c.Tools) > 0 {
 		req.Tools = c.Tools
+		// Debug: Log that tools are being sent
+		if debugMode := os.Getenv("GOSS_DEBUG"); debugMode != "" {
+			fmt.Fprintf(os.Stderr, "[DEBUG] Sending %d tools with request\n", len(c.Tools))
+			for _, tool := range c.Tools {
+				fmt.Fprintf(os.Stderr, "[DEBUG] Tool: %s - %s\n", tool.Function.Name, tool.Function.Description)
+			}
+		}
 	}
 
 	reqBody, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("marshal request: %w", err)
+	}
+	
+	// Debug: Log the full request if in debug mode
+	if debugMode := os.Getenv("GOSS_DEBUG"); debugMode != "" {
+		fmt.Fprintf(os.Stderr, "[DEBUG] Request to %s\n", c.BaseURL+"chat/completions")
+		if len(req.Messages) > 0 {
+			lastMsg := req.Messages[len(req.Messages)-1]
+			fmt.Fprintf(os.Stderr, "[DEBUG] Last message role: %s, content: %.100s...\n", 
+				lastMsg.Role, lastMsg.Content)
+		}
 	}
 
 	httpReq, err := http.NewRequestWithContext(ctx, "POST", c.BaseURL+"chat/completions", bytes.NewReader(reqBody))
@@ -148,6 +166,22 @@ func (c *Client) CreateChatCompletion(ctx context.Context, req ChatCompletionReq
 	var chatResp ChatCompletionResponse
 	if err := json.NewDecoder(resp.Body).Decode(&chatResp); err != nil {
 		return nil, fmt.Errorf("decode response: %w", err)
+	}
+
+	// Debug: Log response details
+	if debugMode := os.Getenv("GOSS_DEBUG"); debugMode != "" {
+		if len(chatResp.Choices) > 0 {
+			choice := chatResp.Choices[0]
+			fmt.Fprintf(os.Stderr, "[DEBUG] Response received\n")
+			fmt.Fprintf(os.Stderr, "[DEBUG] Tool calls in response: %d\n", len(choice.Message.ToolCalls))
+			if len(choice.Message.ToolCalls) > 0 {
+				for _, tc := range choice.Message.ToolCalls {
+					fmt.Fprintf(os.Stderr, "[DEBUG] Tool call: %s\n", tc.Function.Name)
+				}
+			} else if choice.Message.Content != "" {
+				fmt.Fprintf(os.Stderr, "[DEBUG] Text response (no tools): %.100s...\n", choice.Message.Content)
+			}
+		}
 	}
 
 	return &chatResp, nil
