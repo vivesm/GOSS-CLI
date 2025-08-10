@@ -121,3 +121,14 @@ func (io *IO) SetUserPrompt() {
 		io.Reader.SetPrompt(io.Prompt.User)
 	}
 }
+
+// Close properly closes the readline instance and cleans up resources
+func (io *IO) Close() error {
+	if io.Spinner != nil {
+		io.Spinner.Stop()
+	}
+	if io.Reader != nil {
+		return io.Reader.Close()
+	}
+	return nil
+}

@@ -17,12 +17,20 @@ type Chat struct {
 // Start starts the chat.
 func (c *Chat) Start() {
 	defer func() {
-		c.io.Spinner.Stop()
+		// Ensure spinner is stopped before any output
+		if c.io.Spinner != nil {
+			c.io.Spinner.Stop()
+		}
+		
+		// Print goodbye message
 		c.io.Write("\n")
 		c.io.Write("╭─────────────────────────────────╮\n")
 		c.io.Write("│  👋 Thanks for using GOSS AI!  │\n")
 		c.io.Write("│     Have a wonderful day!       │\n")
 		c.io.Write("╰─────────────────────────────────╯\n\n")
+		
+		// Properly close the IO to release readline resources
+		c.io.Close()
 	}()
 
 	c.showWelcomeMessage()
