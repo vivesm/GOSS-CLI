@@ -22,6 +22,7 @@ func run() int {
 	rootCmd := &cobra.Command{
 		Use:     "goss",
 		Short:   "Chat with local LLMs using MCP tools",
+		Long:    "GOSS CLI - A command-line interface for chatting with local LLMs using MCP (Model Context Protocol) tools.\n\nFeatures:\n• Chat with local LLMs via LM Studio\n• MCP tools: filesystem operations, web search\n• System commands: !help, !m (model), !h (history), !t (temperature), !q (quit)\n• Conversation history management\n• Configurable system prompts",
 		Version: version,
 	}
 

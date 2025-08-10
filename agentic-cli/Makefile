@@ -3,7 +3,7 @@
 .PHONY: all build clean test fmt vet deps install uninstall run help
 
 # Variables
-BINARY_NAME=goss
+BINARY_NAME=gossai
 BUILD_DIR=bin
 MAIN_PATH=cmd/goss/main.go
 VERSION=$(shell date +%Y%m%d)
@@ -50,17 +50,19 @@ clean:
 install: build
 	@echo "📦 Installing $(BINARY_NAME) to ~/.local/bin..."
 	@mkdir -p ~/.local/bin
-	cp $(BUILD_DIR)/$(BINARY_NAME) ~/.local/bin/goss-mcp
-	cp $(BUILD_DIR)/$(BINARY_NAME) ~/.local/bin/goss
-	chmod +x ~/.local/bin/goss-mcp ~/.local/bin/goss
-	@echo "✅ Installed successfully as 'goss' and 'goss-mcp'"
-	@echo "💡 Use 'goss-mcp' (recommended) or 'goss'"
-	@echo "💡 Note: 'goss' will override any existing goss command in PATH"
+	# Build directly to final location to avoid macOS security issues
+	go build -ldflags "-X main.version=$(VERSION)" -o ~/.local/bin/$(BINARY_NAME) $(MAIN_PATH)
+	chmod +x ~/.local/bin/$(BINARY_NAME)
+	# Remove any extended attributes that could cause issues
+	xattr -cr ~/.local/bin/$(BINARY_NAME) 2>/dev/null || true
+	@echo "✅ Installed successfully as '$(BINARY_NAME)'"
+	@echo "💡 Use '$(BINARY_NAME)' to start the CLI"
+	@echo "💡 Optional: Add 'alias goss=$(BINARY_NAME)' to your shell config"
 
 # Uninstall binary from system
 uninstall:
 	@echo "🗑️  Uninstalling $(BINARY_NAME)..."
-	rm -f ~/.local/bin/goss-mcp ~/.local/bin/goss
+	rm -f ~/.local/bin/$(BINARY_NAME)
 	@echo "✅ Uninstalled successfully"
 
 # Run the application
@@ -111,4 +113,4 @@ help:
 	@echo "  make build"
 	@echo "  make run"
 	@echo "  make run-custom BASE_URL=http://localhost:8080/v1 MODEL=mistral-7b"
-	@echo "  make install    # Installs as 'goss-mcp' and 'goss'"
+	@echo "  make install    # Installs as 'gossai'"
