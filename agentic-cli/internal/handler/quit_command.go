@@ -15,5 +15,5 @@ func NewQuitCommand(io *IO) *QuitCommand {
 
 // Handle processes the chat quit command.
 func (h *QuitCommand) Handle(_ string) (Response, bool) {
-	return dataResponse("Exiting gemini-cli..."), true
+	return dataResponse("Exiting goss..."), true
 }

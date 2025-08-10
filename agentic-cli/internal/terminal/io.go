@@ -108,7 +108,7 @@ func (io *IO) handleReadError(err error, inputLen int) string {
 			return cli.SystemCmdPrefix + cli.SystemCmdQuit
 		}
 	} else {
-		io.Write(fmt.Sprintf("%s%s\n", io.Prompt.Cli, Error(err.Error())))
+		io.Write(fmt.Sprintf("%s%s\n", io.Prompt.System, Error(err.Error())))
 	}
 	return ""
 }

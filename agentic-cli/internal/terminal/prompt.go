@@ -9,36 +9,36 @@ import (
 )
 
 const (
-	geminiUser = "gemini"
-	cliUser    = "cli"
+	geminiUser = "goss"
+	cliUser    = "system"
 )
 
 type Prompt struct {
 	User              string
 	UserMultiline     string
 	UserMultilineNext string
-	Gemini            string
-	Cli               string
+	Goss              string  // AI assistant prompt
+	System            string  // System command prompt
 }
 
 type promptColor struct {
 	user   func(string) string
-	gemini func(string) string
-	cli    func(string) string
+	goss   func(string) string
+	system func(string) string
 }
 
 func newPromptColor() *promptColor {
 	if termenv.HasDarkBackground() {
 		return &promptColor{
 			user:   color.Cyan,
-			gemini: color.Green,
-			cli:    color.Yellow,
+			goss:   color.Green,
+			system: color.Yellow,
 		}
 	}
 	return &promptColor{
 		user:   color.Blue,
-		gemini: color.Green,
-		cli:    color.Magenta,
+		goss:   color.Green,
+		system: color.Magenta,
 	}
 }
 
@@ -49,8 +49,8 @@ func NewPrompt(currentUser string) *Prompt {
 		User:              pc.user(buildPrompt(currentUser, '>', maxLength)),
 		UserMultiline:     pc.user(buildPrompt(currentUser, '#', maxLength)),
 		UserMultilineNext: pc.user(buildPrompt(strings.Repeat(" ", len(currentUser)), '>', maxLength)),
-		Gemini:            pc.gemini(buildPrompt(geminiUser, '>', maxLength)),
-		Cli:               pc.cli(buildPrompt(cliUser, '>', maxLength)),
+		Goss:              pc.goss(buildPrompt(geminiUser, '>', maxLength)),
+		System:            pc.system(buildPrompt(cliUser, '>', maxLength)),
 	}
 }
 
@@ -66,5 +66,12 @@ func maxLength(strings ...string) int {
 }
 
 func buildPrompt(user string, p byte, length int) string {
-	return fmt.Sprintf("%s%c%s", user, p, strings.Repeat(" ", length-len(user)+1))
+	// Create a more modern, clean prompt style
+	if user == "goss" {
+		return "🤖 "
+	}
+	if user == "system" {
+		return "⚙️  "
+	}
+	return fmt.Sprintf("%s%c ", user, p)
 }

@@ -24,14 +24,14 @@ func NewAgentic(
 	}
 
 	// Create agentic query handler
-	agenticIO := handler.NewIO(terminalIO, terminalIO.Prompt.Gemini)
+	agenticIO := handler.NewIO(terminalIO, terminalIO.Prompt.Goss)
 	agenticHandler, err := handler.NewAgenticQuery(agenticIO, session, opts.rendererOptions())
 	if err != nil {
 		return nil, err
 	}
 
 	// Create agentic system handler
-	systemIO := handler.NewIO(terminalIO, terminalIO.Prompt.Cli)
+	systemIO := handler.NewIO(terminalIO, terminalIO.Prompt.System)
 	systemHandler, err := handler.NewAgenticSystem(systemIO, session, configuration,
 		opts.GenerativeModel, opts.rendererOptions())
 	if err != nil {

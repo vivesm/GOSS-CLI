@@ -14,7 +14,7 @@ import (
 const (
 	version           = "0.4.0"
 	apiKeyEnv         = "LMSTUDIO_API_KEY" //nolint:gosec
-	defaultConfigPath = "gemini_cli_config.json"
+	defaultConfigPath = "goss_config.json"
 	defaultBaseURL    = "http://localhost:1234/v1"
 )
 
@@ -54,7 +54,7 @@ func run() int {
 			BaseURL:     baseURL,
 			APIKey:      os.Getenv(apiKeyEnv), // Optional for LM Studio
 			Model:       opts.GenerativeModel,
-			Temperature: 0.7,
+			Temperature: 0.3, // Default focused temperature, changeable with !t
 			MaxTokens:   2048,
 		}
 		

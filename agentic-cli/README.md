@@ -121,7 +121,7 @@ The CLI supports system commands prefixed with `!`:
 
 ## Configuration
 
-Create a `gemini_cli_config.json` file:
+Create a `goss_config.json` file:
 
 ```json
 {

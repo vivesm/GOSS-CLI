@@ -30,6 +30,7 @@ func NewAgenticSystem(io *IO, session *agentic.ChatSession, configuration *confi
 		cli.SystemCmdSelectInputMode: NewInputModeCommand(io),
 		cli.SystemCmdModel:           NewAgenticModelCommand(io, session, modelName),
 		cli.SystemCmdHistory:         NewAgenticHistoryCommand(io, session, configuration),
+		cli.SystemCmdTemperature:     NewAgenticTemperatureCommand(io, session),
 	}
 
 	return &AgenticSystem{

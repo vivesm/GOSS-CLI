@@ -35,7 +35,7 @@ WORKDIR /home/appuser
 COPY --from=builder /app/gemini .
 
 # Copy configuration example
-COPY --from=builder /app/gemini_cli_config.json.example .
+COPY --from=builder /app/goss_config.json.example .
 
 # Change ownership to appuser
 RUN chown -R appuser:appuser /home/appuser

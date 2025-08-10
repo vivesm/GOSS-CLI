@@ -13,6 +13,7 @@ const (
 	SystemCmdSelectInputMode = "i"
 	SystemCmdModel           = "m"
 	SystemCmdHistory         = "h"
+	SystemCmdTemperature     = "t"
 )
 
 var ErrInvalidSystemCommand = errors.New("invalid system command")

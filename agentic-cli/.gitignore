@@ -27,7 +27,7 @@ dist/
 .env.brave.api
 
 # Configuration files with sensitive data
-gemini_cli_config.json
+goss_config.json
 
 # Log files
 *.log

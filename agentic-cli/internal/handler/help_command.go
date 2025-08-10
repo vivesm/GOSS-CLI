@@ -37,6 +37,7 @@ func (h *HelpCommand) Handle(_ string) (Response, bool) {
 	fmt.Fprintf(&b, "* `%s` - Select the generative model system prompt.\n", cli.SystemCmdSelectPrompt)
 	fmt.Fprintf(&b, "* `%s` - Select from a list of generative model operations.\n", cli.SystemCmdModel)
 	fmt.Fprintf(&b, "* `%s` - Select from a list of chat history operations.\n", cli.SystemCmdHistory)
+	fmt.Fprintf(&b, "* `%s` - Control temperature settings (focus vs creativity).\n", cli.SystemCmdTemperature)
 	fmt.Fprintf(&b, "* `%s` - Toggle the input mode.\n", cli.SystemCmdSelectInputMode)
 	fmt.Fprintf(&b, "* `%s` - Exit the application.\n", cli.SystemCmdQuit)
 

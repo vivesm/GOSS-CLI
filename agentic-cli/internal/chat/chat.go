@@ -3,6 +3,7 @@ package chat
 import (
 	"github.com/reugn/gemini-cli/internal/handler"
 	"github.com/reugn/gemini-cli/internal/terminal"
+	"github.com/reugn/gemini-cli/internal/terminal/color"
 )
 
 // Chat handles the interactive exchange of messages between user and model.
@@ -17,10 +18,14 @@ type Chat struct {
 func (c *Chat) Start() {
 	defer func() {
 		c.io.Spinner.Stop()
-		c.io.Write("Have a nice day!\n")
+		c.io.Write("\n")
+		c.io.Write("╭─────────────────────────────────╮\n")
+		c.io.Write("│  👋 Thanks for using GOSS AI!  │\n")
+		c.io.Write("│     Have a wonderful day!       │\n")
+		c.io.Write("╰─────────────────────────────────╯\n\n")
 	}()
 
-	c.io.Write("🤖 Agentic CLI - Ready to assist!\n\n")
+	c.showWelcomeMessage()
 
 	for {
 		c.io.SetUserPrompt()
@@ -48,6 +53,31 @@ func (c *Chat) Start() {
 // printResponse prints a response to the terminal
 func (c *Chat) printResponse(response handler.Response) {
 	c.io.Write(response.String())
+}
+
+// showWelcomeMessage displays an enhanced welcome message
+func (c *Chat) showWelcomeMessage() {
+	c.io.Write("\n")
+	c.io.Write(color.Cyan("╭─────────────────────────────────────────────────────────────────╮\n"))
+	c.io.Write(color.Cyan("│                                                                 │\n"))
+	c.io.Write(color.Cyan("│   ") + color.Green("🎯 GOSS AI Assistant") + color.Cyan("                                         │\n"))
+	c.io.Write(color.Cyan("│   ") + color.Green("──────────────────────") + color.Cyan("                                       │\n"))
+	c.io.Write(color.Cyan("│                                                                 │\n"))
+	c.io.Write(color.Cyan("│   ") + color.Yellow("🔧 MCP Tools Available:") + color.Cyan("                                      │\n"))
+	c.io.Write(color.Cyan("│      • ") + color.White("📁 File Operations (read, write, list, search)") + color.Cyan("         │\n"))
+	c.io.Write(color.Cyan("│      • ") + color.White("🔍 Web Search (current information, weather, etc.)") + color.Cyan("     │\n"))
+	c.io.Write(color.Cyan("│                                                                 │\n"))
+	c.io.Write(color.Cyan("│   ") + color.Yellow("💡 System Commands:") + color.Cyan("                                          │\n"))
+	c.io.Write(color.Cyan("│      ") + color.Blue("!help") + color.White("  - Show all commands    ") + color.Blue("!m") + color.White(" - Model info") + color.Cyan("            │\n"))
+	c.io.Write(color.Cyan("│      ") + color.Blue("!h") + color.White("     - History management   ") + color.Blue("!t") + color.White(" - Temperature") + color.Cyan("           │\n"))
+	c.io.Write(color.Cyan("│      ") + color.Blue("!q") + color.White("     - Quit application") + color.Cyan("                                │\n"))
+	c.io.Write(color.Cyan("│                                                                 │\n"))
+	c.io.Write(color.Cyan("╰─────────────────────────────────────────────────────────────────╯\n"))
+	c.io.Write("\n")
+	c.io.Write(color.Green("Ready to assist! ") + "Ask me anything or try:\n")
+	c.io.Write(color.Gray("• \"List files in current directory\"\n"))
+	c.io.Write(color.Gray("• \"Search for recent AI news\"\n"))
+	c.io.Write(color.Gray("• \"Create a file with today's tasks\"\n\n"))
 }
 
 // isSystemCommand checks if the input is a system command
