@@ -8,9 +8,13 @@ import (
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/cli"
 )
 
+// =============================================================================
+// HELP COMMAND
+// =============================================================================
+
 // HelpCommand handles the help system command request.
 type HelpCommand struct {
-	*IO
+	BaseCommand
 	renderer *glamour.TermRenderer
 }
 
@@ -24,8 +28,8 @@ func NewHelpCommand(io *IO, opts RendererOptions) (*HelpCommand, error) {
 	}
 
 	return &HelpCommand{
-		IO:       io,
-		renderer: renderer,
+		BaseCommand: NewBaseCommand(io),
+		renderer:    renderer,
 	}, nil
 }
 
@@ -47,4 +51,28 @@ func (h *HelpCommand) Handle(_ string) (Response, bool) {
 	}
 
 	return dataResponse(rendered), false
+}
+
+// =============================================================================
+// QUIT COMMAND
+// =============================================================================
+
+// QuitCommand processes the chat quit system command.
+// It implements the MessageHandler interface.
+type QuitCommand struct {
+	BaseCommand
+}
+
+var _ MessageHandler = (*QuitCommand)(nil)
+
+// NewQuitCommand returns a new QuitCommand.
+func NewQuitCommand(io *IO) *QuitCommand {
+	return &QuitCommand{
+		BaseCommand: NewBaseCommand(io),
+	}
+}
+
+// Handle processes the chat quit command.
+func (h *QuitCommand) Handle(_ string) (Response, bool) {
+	return dataResponse("Exiting goss..."), true
 }
