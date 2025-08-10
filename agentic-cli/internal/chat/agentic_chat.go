@@ -25,7 +25,7 @@ func NewAgentic(
 
 	// Create agentic query handler
 	agenticIO := handler.NewIO(terminalIO, terminalIO.Prompt.Goss)
-	agenticHandler, err := handler.NewAgenticQuery(agenticIO, session, opts.rendererOptions())
+	agenticHandler, err := handler.NewAgenticQuery(agenticIO, session, configuration, opts.rendererOptions())
 	if err != nil {
 		return nil, err
 	}

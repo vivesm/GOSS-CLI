@@ -1,17 +1,20 @@
 # GOSS CLI
 
-A command-line interface for chat with local LLMs using LM Studio with MCP (Model Context Protocol) tools for file operations and web search.
+A command-line interface for chat with local LLMs using LM Studio with **real-time streaming responses** and **configurable thinking tokens**. Includes MCP (Model Context Protocol) tools for file operations and web search.
 
 ## Features
 
+🚀 **Real-time Streaming**: See AI responses as they're generated, just like LM Studio
+🧠 **Thinking Tokens**: View model reasoning process with configurable levels (off/low/med/high)
 🤖 **Local AI Chat**: Uses LM Studio models with function calling capabilities
 🔧 **MCP Tools**: Built-in filesystem and web search tools
 📁 **File Operations**: Read, write, list, search, and create files/directories
 🌐 **Web Search**: Search the web using Brave Search API (with fallback to DuckDuckGo)
-💬 **Chat Interface**: Clean terminal-based chat like original Gemini CLI
+💬 **Chat Interface**: Clean terminal-based chat with streaming support
 📚 **History Management**: Save/load conversation history
 🔄 **Model Switching**: Switch between different local models
-✨ **Tested & Verified**: All MCP tools tested and working
+⚙️ **Configurable**: Streaming and thinking settings persist automatically
+✨ **Tested & Verified**: All MCP tools and streaming functionality working
 
 ## Prerequisites
 
@@ -94,15 +97,21 @@ gossai
 ```
 > Can you read the package.json file and tell me about the project?
 
-[AI uses read_file tool to read package.json and analyzes it]
+[AI uses read_file tool to read package.json and streams the analysis in real-time]
 
 > Search for information about "MCP protocol" online
 
-[AI uses web_search tool to find information]
+[AI uses web_search tool to find information and streams the response]
+
+> !thinking high
+✅ Thinking level set to high (500 tokens)
 
 > Create a new file called "summary.md" with a summary of what we learned
 
-[AI uses write_file tool to create the file]
+[Gray thinking tokens show reasoning process, then AI uses write_file tool and streams response]
+
+> !show-thinking
+✅ Thinking token visibility toggled off
 ```
 
 ## System Commands
@@ -113,6 +122,9 @@ The CLI supports system commands prefixed with `!`:
 - `!m` - Model operations (switch model, show info, list tools)
 - `!h` - History operations (save, load, clear)
 - `!p` - Select system prompts
+- `!stream` - Toggle streaming responses on/off
+- `!thinking [level]` - Set thinking level (off/low/med/high)
+- `!show-thinking` - Toggle thinking token visibility  
 - `!i` - Toggle input mode
 - `!q` - Quit
 
@@ -126,9 +138,23 @@ Create a `goss_config.json` file:
     "Assistant": "You are a helpful AI assistant with access to filesystem and web search tools.",
     "Developer": "You are an expert software developer. Use the available tools to help with coding tasks."
   },
-  "History": {}
+  "History": {},
+  "Streaming": {
+    "enabled": true,
+    "showThinking": false,
+    "thinkingLevel": "med"
+  }
 }
 ```
+
+**Streaming Options:**
+- `enabled` - Toggle streaming responses (true/false)
+- `showThinking` - Display thinking tokens in gray (true/false)
+- `thinkingLevel` - Thinking token budget:
+  - `"off"` - No thinking tokens (0 tokens)
+  - `"low"` - Minimal reasoning (50 tokens)  
+  - `"med"` - Standard reasoning (200 tokens)
+  - `"high"` - Detailed reasoning (500 tokens)
 
 ## Architecture
 
@@ -240,10 +266,12 @@ gossai  # or ./bin/goss for local build
 
 ## Performance Tips
 
-1. **Use streaming models** for faster responses
-2. **Limit tool complexity** for quicker execution
-3. **Cache results** when possible
-4. **Use specific file paths** instead of broad searches
+1. **Enable streaming** for real-time responses (`!stream` command)
+2. **Adjust thinking levels** based on need (low for speed, high for complex reasoning)
+3. **Use function-calling models** for faster tool execution
+4. **Limit tool complexity** for quicker execution
+5. **Cache results** when possible
+6. **Use specific file paths** instead of broad searches
 
 ## Security Notes
 

@@ -398,3 +398,153 @@ func (h *HistoryCommand) deleteAllHistory() Response {
 
 	return dataResponse(fmt.Sprintf("Deleted %d history records", count))
 }
+
+// =============================================================================
+// STREAMING COMMANDS
+// =============================================================================
+
+// StreamCommand handles streaming toggle operations
+type StreamCommand struct {
+	BaseCommand
+	config *config.Config
+}
+
+var _ MessageHandler = (*StreamCommand)(nil)
+
+// NewStreamCommand returns a new StreamCommand
+func NewStreamCommand(io *IO, config *config.Config) *StreamCommand {
+	return &StreamCommand{
+		BaseCommand: NewBaseCommand(io),
+		config:      config,
+	}
+}
+
+// Handle processes the streaming toggle command
+func (s *StreamCommand) Handle(_ string) (Response, bool) {
+	// Toggle streaming
+	s.config.Streaming.Enabled = !s.config.Streaming.Enabled
+	
+	// Save configuration
+	if err := s.config.Save(); err != nil {
+		return newErrorResponse(fmt.Errorf("failed to save streaming setting: %w", err)), false
+	}
+	
+	status := "disabled"
+	if s.config.Streaming.Enabled {
+		status = "enabled"
+	}
+	
+	return dataResponse(fmt.Sprintf("Streaming: %s", status)), false
+}
+
+// ThinkingCommand handles thinking level operations
+type ThinkingCommand struct {
+	BaseCommand
+	config *config.Config
+}
+
+var _ MessageHandler = (*ThinkingCommand)(nil)
+
+// NewThinkingCommand returns a new ThinkingCommand
+func NewThinkingCommand(io *IO, config *config.Config) *ThinkingCommand {
+	return &ThinkingCommand{
+		BaseCommand: NewBaseCommand(io),
+		config:      config,
+	}
+}
+
+// Handle processes the thinking level command
+func (t *ThinkingCommand) Handle(input string) (Response, bool) {
+	// Parse input to extract level argument
+	parts := strings.Fields(strings.TrimPrefix(input, "!thinking"))
+	
+	if len(parts) == 0 {
+		// No argument provided, show interactive menu
+		return t.showThinkingMenu(), false
+	}
+	
+	// Argument provided, set directly
+	level := strings.ToLower(parts[0])
+	return t.setThinkingLevel(level), false
+}
+
+func (t *ThinkingCommand) showThinkingMenu() Response {
+	items := []string{
+		"off - No thinking tokens",
+		"low - Minimal thinking (~50 tokens)",
+		"med - Standard thinking (~200 tokens)",
+		"high - Detailed thinking (~500 tokens)",
+	}
+	
+	prompt := promptui.Select{
+		Label: fmt.Sprintf("Current thinking level: %s. Select new level", t.config.Streaming.ThinkingLevel),
+		Items: items,
+	}
+	
+	index, _, err := prompt.Run()
+	if err != nil {
+		return newErrorResponse(err)
+	}
+	
+	levels := []string{"off", "low", "med", "high"}
+	return t.setThinkingLevel(levels[index])
+}
+
+func (t *ThinkingCommand) setThinkingLevel(level string) Response {
+	// Validate level
+	validLevels := map[string]bool{"off": true, "low": true, "med": true, "high": true}
+	if !validLevels[level] {
+		return newErrorResponse(fmt.Errorf("invalid thinking level '%s': must be one of [off, low, med, high]", level))
+	}
+	
+	// Set level
+	t.config.Streaming.ThinkingLevel = level
+	
+	// Save configuration
+	if err := t.config.Save(); err != nil {
+		return newErrorResponse(fmt.Errorf("failed to save thinking level: %w", err))
+	}
+	
+	descriptions := map[string]string{
+		"off":  "No thinking tokens",
+		"low":  "Minimal thinking (~50 tokens)",
+		"med":  "Standard thinking (~200 tokens)",
+		"high": "Detailed thinking (~500 tokens)",
+	}
+	
+	return dataResponse(fmt.Sprintf("Thinking level: %s - %s", level, descriptions[level]))
+}
+
+// ShowThinkingCommand handles thinking visibility toggle
+type ShowThinkingCommand struct {
+	BaseCommand
+	config *config.Config
+}
+
+var _ MessageHandler = (*ShowThinkingCommand)(nil)
+
+// NewShowThinkingCommand returns a new ShowThinkingCommand
+func NewShowThinkingCommand(io *IO, config *config.Config) *ShowThinkingCommand {
+	return &ShowThinkingCommand{
+		BaseCommand: NewBaseCommand(io),
+		config:      config,
+	}
+}
+
+// Handle processes the show thinking toggle command
+func (s *ShowThinkingCommand) Handle(_ string) (Response, bool) {
+	// Toggle show thinking
+	s.config.Streaming.ShowThinking = !s.config.Streaming.ShowThinking
+	
+	// Save configuration
+	if err := s.config.Save(); err != nil {
+		return newErrorResponse(fmt.Errorf("failed to save show thinking setting: %w", err)), false
+	}
+	
+	status := "hidden"
+	if s.config.Streaming.ShowThinking {
+		status = "visible"
+	}
+	
+	return dataResponse(fmt.Sprintf("Thinking tokens: %s", status)), false
+}

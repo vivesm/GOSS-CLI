@@ -14,6 +14,9 @@ const (
 	SystemCmdModel           = "m"
 	SystemCmdHistory         = "h"
 	SystemCmdTemperature     = "t"
+	SystemCmdStream          = "stream"
+	SystemCmdThinking        = "thinking"
+	SystemCmdShowThinking    = "show-thinking"
 )
 
 var ErrInvalidSystemCommand = errors.New("invalid system command")
