@@ -1,16 +1,16 @@
 package chat
 
 import (
-	"github.com/reugn/gemini-cli/internal/handler"
-	"github.com/reugn/gemini-cli/internal/terminal"
-	"github.com/reugn/gemini-cli/internal/terminal/color"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/handler"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal/color"
 )
 
 // Chat handles the interactive exchange of messages between user and model.
 type Chat struct {
 	io *terminal.IO
 
-	geminiHandler handler.MessageHandler
+	gossHandler handler.MessageHandler
 	systemHandler handler.MessageHandler
 }
 
@@ -44,7 +44,7 @@ func (c *Chat) Start() {
 			}
 		} else {
 			// Handle regular agentic queries
-			response, _ := c.geminiHandler.Handle(input)
+			response, _ := c.gossHandler.Handle(input)
 			c.printResponse(response)
 		}
 	}

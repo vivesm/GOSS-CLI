@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/glamour"
-	"github.com/reugn/gemini-cli/internal/cli"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/cli"
 )
 
 // HelpCommand handles the help system command request.

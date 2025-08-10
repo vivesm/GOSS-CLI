@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/manifoldco/promptui"
-	"github.com/reugn/gemini-cli/agentic"
-	"github.com/reugn/gemini-cli/internal/config"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
 )
 
 // AgenticPromptCommand handles system prompt operations for agentic sessions

@@ -7,8 +7,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/reugn/gemini-cli/mcp"
-	"github.com/reugn/gemini-cli/openai"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/mcp"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
 const DefaultModel = "openai/gpt-oss-20b"

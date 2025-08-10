@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/reugn/gemini-cli/openai"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
 func TestNewChatSession(t *testing.T) {

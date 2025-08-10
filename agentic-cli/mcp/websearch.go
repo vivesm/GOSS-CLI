@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/reugn/gemini-cli/openai"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
 // CreateWebSearchTools returns web search MCP tools
@@ -106,7 +106,7 @@ func performWebSearch(ctx context.Context, query string, count int) ([]SearchRes
 		
 		req.Header.Set("Accept", "application/json")
 		req.Header.Set("X-Subscription-Token", apiKey)
-		req.Header.Set("User-Agent", "gemini-cli/1.0")
+		req.Header.Set("User-Agent", "goss-cli/1.0")
 		
 		resp, err := client.Do(req)
 		if err != nil {
@@ -154,7 +154,7 @@ func performDuckDuckGoSearch(ctx context.Context, query string, count int) ([]Se
 		return nil, err
 	}
 	
-	req.Header.Set("User-Agent", "gemini-cli/1.0")
+	req.Header.Set("User-Agent", "goss-cli/1.0")
 	
 	resp, err := client.Do(req)
 	if err != nil {

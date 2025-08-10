@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/muesli/termenv"
-	"github.com/reugn/gemini-cli/internal/terminal/color"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal/color"
 )
 
 const (

@@ -1,4 +1,4 @@
-module github.com/reugn/gemini-cli
+module github.com/vivesm/GOSS-CLI/agentic-cli
 
 go 1.21
 

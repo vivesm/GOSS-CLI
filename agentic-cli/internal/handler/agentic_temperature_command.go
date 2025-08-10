@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/reugn/gemini-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
 )
 
 // AgenticTemperatureCommand processes temperature control system commands.

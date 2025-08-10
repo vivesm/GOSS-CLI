@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/reugn/gemini-cli/openai"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
 // CreateFilesystemTools returns a slice of filesystem MCP tools

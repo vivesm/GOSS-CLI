@@ -1,4 +1,4 @@
-# Gemini Agentic CLI Makefile
+# GOSS Agentic CLI Makefile
 
 .PHONY: all build clean test fmt vet deps install uninstall run help
 
@@ -90,7 +90,7 @@ release: clean check build
 
 # Show help
 help:
-	@echo "Gemini Agentic CLI - Available targets:"
+	@echo "GOSS Agentic CLI - Available targets:"
 	@echo ""
 	@echo "  build      - Build the binary"
 	@echo "  deps       - Install Go dependencies"

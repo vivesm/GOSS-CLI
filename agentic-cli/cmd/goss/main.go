@@ -5,9 +5,9 @@ import (
 	"os"
 	"os/user"
 
-	"github.com/reugn/gemini-cli/agentic"
-	"github.com/reugn/gemini-cli/internal/chat"
-	"github.com/reugn/gemini-cli/internal/config"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/chat"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
 	"github.com/spf13/cobra"
 )
 

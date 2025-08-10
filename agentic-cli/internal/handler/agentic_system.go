@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"github.com/reugn/gemini-cli/agentic"
-	"github.com/reugn/gemini-cli/internal/cli"
-	"github.com/reugn/gemini-cli/internal/config"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/cli"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
 )
 
 // AgenticSystem processes chat system commands for agentic sessions

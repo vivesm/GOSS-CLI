@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/chzyer/readline"
-	"github.com/reugn/gemini-cli/internal/cli"
-	"github.com/reugn/gemini-cli/internal/terminal/color"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/cli"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal/color"
 )
 
 var Error = color.Red

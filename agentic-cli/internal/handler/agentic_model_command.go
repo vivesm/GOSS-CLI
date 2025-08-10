@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/manifoldco/promptui"
-	"github.com/reugn/gemini-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
 )
 
 // AgenticModelCommand handles model operations for agentic sessions

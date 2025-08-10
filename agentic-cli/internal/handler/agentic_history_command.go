@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/manifoldco/promptui"
-	"github.com/reugn/gemini-cli/agentic"
-	"github.com/reugn/gemini-cli/internal/config"
-	"github.com/reugn/gemini-cli/openai"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/openai"
 )
 
 // AgenticHistoryCommand handles history operations for agentic sessions

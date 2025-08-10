@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 
-	"github.com/reugn/gemini-cli/internal/terminal"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal"
 )
 
 // Response represents a response from a chat message handler.

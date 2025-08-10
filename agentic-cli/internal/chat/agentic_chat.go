@@ -1,10 +1,10 @@
 package chat
 
 import (
-	"github.com/reugn/gemini-cli/agentic"
-	"github.com/reugn/gemini-cli/internal/config"
-	"github.com/reugn/gemini-cli/internal/handler"
-	"github.com/reugn/gemini-cli/internal/terminal"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/config"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/handler"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal"
 )
 
 // NewAgentic returns a new Chat with agentic capabilities
@@ -40,7 +40,7 @@ func NewAgentic(
 
 	return &Chat{
 		io:            terminalIO,
-		geminiHandler: agenticHandler,  // Re-use same field name for compatibility
+		gossHandler: agenticHandler,  // Updated field name for GOSS
 		systemHandler: systemHandler,
 	}, nil
 }

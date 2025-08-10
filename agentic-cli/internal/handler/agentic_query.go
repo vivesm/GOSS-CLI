@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/glamour"
-	"github.com/reugn/gemini-cli/agentic"
+	"github.com/vivesm/GOSS-CLI/agentic-cli/agentic"
 )
 
 // AgenticQuery processes queries to agentic models with MCP tools.

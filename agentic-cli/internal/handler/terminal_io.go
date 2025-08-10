@@ -1,6 +1,6 @@
 package handler
 
-import "github.com/reugn/gemini-cli/internal/terminal"
+import "github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal"
 
 // IO encapsulates terminal details for handlers.
 type IO struct {

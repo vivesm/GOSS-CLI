@@ -1,6 +1,6 @@
 package chat
 
-import "github.com/reugn/gemini-cli/internal/handler"
+import "github.com/vivesm/GOSS-CLI/agentic-cli/internal/handler"
 
 // Opts represents the Chat configuration options.
 type Opts struct {
