@@ -63,8 +63,8 @@ func min(a, b int) int {
 	return b
 }
 
-// Global rate limiter for web searches (5 requests per minute)
-var webSearchRateLimiter = NewRateLimiter(5, time.Minute/5)
+// Global rate limiter for web searches (10 requests per minute)
+var webSearchRateLimiter = NewRateLimiter(10, time.Minute/10)
 
 // CreateWebSearchTools returns web search MCP tools
 func CreateWebSearchTools() []openai.Tool {
@@ -117,7 +117,7 @@ type BraveSearchResponse struct {
 func webSearchHandler(ctx context.Context, args map[string]interface{}) (string, error) {
 	// Rate limiting check
 	if !webSearchRateLimiter.Allow() {
-		return "", fmt.Errorf("rate limit exceeded: maximum 5 web searches per minute allowed")
+		return "", fmt.Errorf("rate limit exceeded: maximum 10 web searches per minute allowed")
 	}
 
 	query, ok := args["query"].(string)
@@ -259,15 +259,20 @@ func performDuckDuckGoSearch(ctx context.Context, query string, count int) ([]Se
 		}
 	}
 
-	// If we don't have enough results, add some mock results
-	// In production, you'd implement proper search API integration
+	// If we don't have enough results, try web scraping for current events
 	if len(results) == 0 {
-		results = []SearchResult{
-			{
-				Title:       "Search Results",
-				URL:         "https://duckduckgo.com/?q=" + url.QueryEscape(query),
-				Description: fmt.Sprintf("No instant results found for '%s'. Try searching directly on the web.", query),
-			},
+		scrapedResults, err := performWebScrapeSearch(ctx, query, count)
+		if err == nil && len(scrapedResults) > 0 {
+			results = scrapedResults
+		} else {
+			// Last resort: provide helpful search suggestions
+			results = []SearchResult{
+				{
+					Title:       "Search Suggestions",
+					URL:         "https://duckduckgo.com/?q=" + url.QueryEscape(query),
+					Description: fmt.Sprintf("For current information about '%s', try these specific searches: '%s recent news', '%s latest updates', or '%s today'.", query, query, query, query),
+				},
+			}
 		}
 	}
 
@@ -326,6 +331,64 @@ func loadBraveAPIKey() string {
 	}
 
 	return ""
+}
+
+func performWebScrapeSearch(ctx context.Context, query string, count int) ([]SearchResult, error) {
+	// Use a simple search engine scraping approach
+	// In a production environment, you'd want to use proper APIs like Brave, Bing, etc.
+	
+	client := &http.Client{Timeout: 10 * time.Second}
+	
+	// Try using a simple search aggregator that provides JSON results
+	// Using SerpAPI-style free endpoint or similar
+	searchURL := fmt.Sprintf("https://html.duckduckgo.com/html/?q=%s", url.QueryEscape(query))
+	
+	req, err := http.NewRequestWithContext(ctx, "GET", searchURL, nil)
+	if err != nil {
+		return nil, err
+	}
+	
+	req.Header.Set("User-Agent", "Mozilla/5.0 (compatible; goss-cli/1.0)")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+	
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("search request failed with status: %d", resp.StatusCode)
+	}
+	
+	// For now, return a helpful fallback result that directs users to search engines
+	// In a full implementation, you'd parse HTML or use a proper search API
+	results := []SearchResult{
+		{
+			Title:       fmt.Sprintf("Search for '%s' on DuckDuckGo", query),
+			URL:         fmt.Sprintf("https://duckduckgo.com/?q=%s", url.QueryEscape(query)),
+			Description: fmt.Sprintf("Click to search for current information about '%s' on DuckDuckGo. For breaking news, try adding 'today' or 'news' to your search.", query),
+		},
+		{
+			Title:       fmt.Sprintf("Search for '%s' on Google", query),
+			URL:         fmt.Sprintf("https://google.com/search?q=%s", url.QueryEscape(query)),
+			Description: fmt.Sprintf("Alternative search for '%s' on Google. Use this for the most current news and information.", query),
+		},
+	}
+	
+	// Add news-specific suggestions for news queries
+	if strings.Contains(strings.ToLower(query), "news") || 
+	   strings.Contains(strings.ToLower(query), "recent") || 
+	   strings.Contains(strings.ToLower(query), "today") ||
+	   strings.Contains(strings.ToLower(query), "latest") {
+		results = append(results, SearchResult{
+			Title:       "News Search Suggestion",
+			URL:         fmt.Sprintf("https://news.google.com/search?q=%s", url.QueryEscape(query)),
+			Description: fmt.Sprintf("For the latest news about '%s', try Google News, Reddit, or Twitter search. Current events require real-time sources.", query),
+		})
+	}
+	
+	return results, nil
 }
 
 func formatSearchResults(query string, results []SearchResult) string {

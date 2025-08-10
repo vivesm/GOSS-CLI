@@ -1,6 +1,9 @@
 package chat
 
 import (
+	"fmt"
+	"os"
+	
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/handler"
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal"
 	"github.com/vivesm/GOSS-CLI/agentic-cli/internal/terminal/color"
@@ -17,20 +20,21 @@ type Chat struct {
 // Start starts the chat.
 func (c *Chat) Start() {
 	defer func() {
-		// Ensure spinner is stopped before any output
-		if c.io.Spinner != nil {
-			c.io.Spinner.Stop()
-		}
-		
 		// Print goodbye message
-		c.io.Write("\n")
-		c.io.Write("╭─────────────────────────────────╮\n")
-		c.io.Write("│  👋 Thanks for using GOSS AI!  │\n")
-		c.io.Write("│     Have a wonderful day!       │\n")
-		c.io.Write("╰─────────────────────────────────╯\n\n")
+		fmt.Println()
+		fmt.Println("╭─────────────────────────────────╮")
+		fmt.Println("│  👋 Thanks for using GOSS AI!  │")
+		fmt.Println("│     Have a wonderful day!       │")
+		fmt.Println("╰─────────────────────────────────╯")
+		fmt.Println()
 		
-		// Properly close the IO to release readline resources
-		c.io.Close()
+		// Close IO resources (spinner.Stop() removed as it causes hangs)
+		if err := c.io.Close(); err != nil {
+			// Only log errors in debug mode
+			if os.Getenv("GOSS_DEBUG") != "" {
+				fmt.Printf("[DEBUG] Error closing IO: %v\n", err)
+			}
+		}
 	}()
 
 	c.showWelcomeMessage()

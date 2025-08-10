@@ -107,6 +107,9 @@ func (io *IO) handleReadError(err error, inputLen int) string {
 			// handle as the quit command
 			return cli.SystemCmdPrefix + cli.SystemCmdQuit
 		}
+	} else if err.Error() == "EOF" {
+		// Handle EOF as quit command (e.g., when stdin is closed)
+		return cli.SystemCmdPrefix + cli.SystemCmdQuit
 	} else {
 		io.Write(fmt.Sprintf("%s%s\n", io.Prompt.System, Error(err.Error())))
 	}
@@ -124,9 +127,10 @@ func (io *IO) SetUserPrompt() {
 
 // Close properly closes the readline instance and cleans up resources
 func (io *IO) Close() error {
-	if io.Spinner != nil {
-		io.Spinner.Stop()
-	}
+	// Skip spinner.Stop() as it causes hangs - let process exit handle cleanup
+	// if io.Spinner != nil {
+	//     io.Spinner.Stop()
+	// }
 	if io.Reader != nil {
 		return io.Reader.Close()
 	}
