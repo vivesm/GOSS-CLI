@@ -244,18 +244,18 @@ func (tc *TemperatureCommand) getTemperatureDescription(temp float64) string {
 // HistoryCommand handles history operations for sessions
 type HistoryCommand struct {
 	BaseCommand
-	session       *agentic.ChatSession
-	configuration *config.Configuration
+	session *agentic.ChatSession
+	config  *config.Config
 }
 
 var _ MessageHandler = (*HistoryCommand)(nil)
 
 // NewHistoryCommand returns a new HistoryCommand
-func NewHistoryCommand(io *IO, session *agentic.ChatSession, configuration *config.Configuration) *HistoryCommand {
+func NewHistoryCommand(io *IO, session *agentic.ChatSession, config *config.Config) *HistoryCommand {
 	return &HistoryCommand{
-		BaseCommand:   NewBaseCommand(io),
-		session:       session,
-		configuration: configuration,
+		BaseCommand: NewBaseCommand(io),
+		session:     session,
+		config:      config,
 	}
 }
 
@@ -314,13 +314,13 @@ func (h *HistoryCommand) saveHistory() Response {
 	}
 
 	// Save to configuration
-	if h.configuration.Data.History == nil {
-		h.configuration.Data.History = make(map[string]interface{})
+	if h.config.History == nil {
+		h.config.History = make(map[string]interface{})
 	}
-	h.configuration.Data.History[key] = string(historyJSON)
+	h.config.History[key] = string(historyJSON)
 
 	// Write configuration
-	if err := h.configuration.Write(); err != nil {
+	if err := h.config.Save(); err != nil {
 		return newErrorResponse(fmt.Errorf("failed to save history: %w", err))
 	}
 
@@ -328,13 +328,13 @@ func (h *HistoryCommand) saveHistory() Response {
 }
 
 func (h *HistoryCommand) loadHistory() Response {
-	if h.configuration.Data.History == nil || len(h.configuration.Data.History) == 0 {
+	if h.config.History == nil || len(h.config.History) == 0 {
 		return dataResponse("No saved history available")
 	}
 
 	// Get list of saved histories
 	var keys []string
-	for key := range h.configuration.Data.History {
+	for key := range h.config.History {
 		keys = append(keys, key)
 	}
 
@@ -349,7 +349,7 @@ func (h *HistoryCommand) loadHistory() Response {
 	}
 
 	// Load the selected history
-	historyData, exists := h.configuration.Data.History[selectedKey]
+	historyData, exists := h.config.History[selectedKey]
 	if !exists {
 		return newErrorResponse(fmt.Errorf("history not found: %s", selectedKey))
 	}
@@ -371,11 +371,11 @@ func (h *HistoryCommand) loadHistory() Response {
 }
 
 func (h *HistoryCommand) deleteAllHistory() Response {
-	if h.configuration.Data.History == nil || len(h.configuration.Data.History) == 0 {
+	if h.config.History == nil || len(h.config.History) == 0 {
 		return dataResponse("No history records to delete")
 	}
 
-	count := len(h.configuration.Data.History)
+	count := len(h.config.History)
 
 	// Confirm deletion
 	prompt := promptui.Prompt{
@@ -389,10 +389,10 @@ func (h *HistoryCommand) deleteAllHistory() Response {
 	}
 
 	// Clear history
-	h.configuration.Data.History = make(map[string]interface{})
+	h.config.History = make(map[string]interface{})
 
 	// Write configuration
-	if err := h.configuration.Write(); err != nil {
+	if err := h.config.Save(); err != nil {
 		return newErrorResponse(fmt.Errorf("failed to delete history: %w", err))
 	}
 

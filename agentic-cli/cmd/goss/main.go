@@ -44,7 +44,7 @@ func run() int {
 		"LM Studio API base URL")
 
 	rootCmd.RunE = func(_ *cobra.Command, _ []string) error {
-		configuration, err := config.NewConfiguration(configPath)
+		configuration, err := config.NewConfig(configPath)
 		if err != nil {
 			return err
 		}

@@ -16,7 +16,7 @@ type System struct {
 var _ MessageHandler = (*System)(nil)
 
 // NewSystem returns a new System command handler.
-func NewSystem(io *IO, session *agentic.ChatSession, configuration *config.Configuration,
+func NewSystem(io *IO, session *agentic.ChatSession, configuration *config.Config,
 	modelName string, rendererOptions RendererOptions) (*System, error) {
 	helpCommandHandler, err := NewHelpCommand(io, rendererOptions)
 	if err != nil {
@@ -26,7 +26,7 @@ func NewSystem(io *IO, session *agentic.ChatSession, configuration *config.Confi
 	handlers := map[string]MessageHandler{
 		cli.SystemCmdHelp:            helpCommandHandler,
 		cli.SystemCmdQuit:            NewQuitCommand(io),
-		cli.SystemCmdSelectPrompt:    NewPromptCommand(io, session, configuration.Data),
+		cli.SystemCmdSelectPrompt:    NewPromptCommand(io, session, configuration),
 		cli.SystemCmdSelectInputMode: NewInputModeCommand(io),
 		cli.SystemCmdModel:           NewModelCommand(io, session, modelName),
 		cli.SystemCmdHistory:         NewHistoryCommand(io, session, configuration),

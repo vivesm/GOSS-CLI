@@ -10,7 +10,7 @@ import (
 // NewAgentic returns a new Chat with agentic capabilities
 func NewAgentic(
 	user string, session *agentic.ChatSession,
-	configuration *config.Configuration, opts *Opts,
+	configuration *config.Config, opts *Opts,
 ) (*Chat, error) {
 	terminalIOConfig := &terminal.IOConfig{
 		User:           user,

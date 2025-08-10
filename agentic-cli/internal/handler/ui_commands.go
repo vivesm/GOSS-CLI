@@ -21,30 +21,30 @@ var inputModeOptions = []string{
 type PromptCommand struct {
 	BaseCommand
 	session *agentic.ChatSession
-	data    *config.ApplicationData
+	config  *config.Config
 }
 
 var _ MessageHandler = (*PromptCommand)(nil)
 
 // NewPromptCommand returns a new PromptCommand
-func NewPromptCommand(io *IO, session *agentic.ChatSession, data *config.ApplicationData) *PromptCommand {
+func NewPromptCommand(io *IO, session *agentic.ChatSession, config *config.Config) *PromptCommand {
 	return &PromptCommand{
 		BaseCommand: NewBaseCommand(io),
 		session:     session,
-		data:        data,
+		config:      config,
 	}
 }
 
 // Handle processes system prompt commands
 func (p *PromptCommand) Handle(_ string) (Response, bool) {
-	if p.data.SystemPrompts == nil || len(p.data.SystemPrompts) == 0 {
+	if p.config.SystemPrompts == nil || len(p.config.SystemPrompts) == 0 {
 		return dataResponse("No system prompts configured. Add them to your configuration file."), false
 	}
 
 	var prompts []string
 	var promptMap = make(map[string]string)
 
-	for name, prompt := range p.data.SystemPrompts {
+	for name, prompt := range p.config.SystemPrompts {
 		prompts = append(prompts, name)
 		promptMap[name] = prompt
 	}
